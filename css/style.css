@@ -333,6 +333,68 @@ a {
     color: rgba(23, 37, 42, 0.7);
 }
 
+.payment-card-visual {
+    position: relative;
+    overflow: hidden;
+    padding: 1.2rem;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background:
+        radial-gradient(circle at 16% 22%, rgba(255, 196, 84, 0.44), transparent 36%),
+        radial-gradient(circle at 86% 14%, rgba(109, 205, 255, 0.36), transparent 38%),
+        linear-gradient(140deg, #123b57 0%, #0f525e 45%, #236f5b 100%);
+    color: #f7fbfd;
+    box-shadow: 0 20px 30px rgba(13, 34, 40, 0.28);
+}
+
+.payment-card-brand {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    font-weight: 800;
+    opacity: 0.9;
+    text-transform: uppercase;
+}
+
+.payment-card-number {
+    margin-top: 1.1rem;
+    font-size: clamp(1.05rem, 2.8vw, 1.25rem);
+    letter-spacing: 0.1em;
+    font-weight: 700;
+}
+
+.payment-card-meta {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.payment-card-meta span {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.78;
+}
+
+.payment-card-meta strong {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.86rem;
+    letter-spacing: 0.04em;
+}
+
+.payment-card-input {
+    border-radius: 12px;
+    border-color: rgba(23, 37, 42, 0.2);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.payment-card-input:focus {
+    border-color: rgba(20, 91, 104, 0.7);
+    box-shadow: 0 0 0 0.2rem rgba(49, 141, 142, 0.2);
+}
+
 .payment-demo-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1283,6 +1345,11 @@ a {
 
     .payment-demo-grid {
         grid-template-columns: 1fr;
+    }
+
+    .payment-card-meta {
+        flex-direction: column;
+        gap: 0.7rem;
     }
 
     .sticky-summary {

@@ -18,14 +18,14 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
             setValidated(false);
             setPaymentNotice({
                 tone: 'info',
-                message: 'Registration saved. Complete the demo payment below to activate the enrollment.',
+                message: 'Registration saved. Complete the card payment below to activate the enrollment.',
             });
             setCheckoutEnrollment(enrollment);
         },
     });
 
     const paymentMutation = useMutation({
-        mutationFn: ({ id, outcome }) => enrollmentsApi.completePayment(id, { outcome }),
+        mutationFn: (id) => enrollmentsApi.completePayment(id),
         onSuccess: (enrollment) => {
             setCheckoutEnrollment(enrollment);
             onSubmit('registration', {
@@ -38,7 +38,7 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
             if (enrollment.paymentStatus === 'PAID') {
                 setPaymentNotice({
                     tone: 'success',
-                    message: 'Demo payment completed. Enrollment is now active.',
+                    message: 'Payment successful. Enrollment is now active.',
                 });
                 formRef.current?.reset();
                 onClassChange(enrollment.courseId);
@@ -48,7 +48,7 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
 
             setPaymentNotice({
                 tone: 'danger',
-                message: enrollment.paymentFailureReason || 'Demo payment failed. Retry whenever you are ready.',
+                message: 'Payment could not be completed. Please try again.',
             });
         },
     });
@@ -75,9 +75,9 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
         });
     }
 
-    function handlePaymentOutcome(outcome) {
+    function handlePaymentSubmit() {
         if (!checkoutEnrollment || paymentMutation.isPending) return;
-        paymentMutation.mutate({ id: checkoutEnrollment.id, outcome });
+        paymentMutation.mutate(checkoutEnrollment.id);
     }
 
     return (
@@ -93,13 +93,14 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
                         </p>
                     </div>
                 </div>
-                <form
-                    ref={formRef}
-                    className={`needs-validation${validated ? ' was-validated' : ''}`}
-                    noValidate
-                    onSubmit={handleSubmit}
-                >
-                    <fieldset className="row g-3 border-0 p-0 m-0" disabled={isFormLocked}>
+                {!checkoutEnrollment ? (
+                    <form
+                        ref={formRef}
+                        className={`needs-validation${validated ? ' was-validated' : ''}`}
+                        noValidate
+                        onSubmit={handleSubmit}
+                    >
+                        <fieldset className="row g-3 border-0 p-0 m-0" disabled={isFormLocked}>
                     <div className="col-md-6">
                         <label className="form-label" htmlFor="registerName">Student name</label>
                         <input
@@ -245,20 +246,27 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
                         )}
                         {paymentMutation.isError && (
                             <div className="form-message text-danger">
-                                {paymentMutation.error?.response?.data?.error || 'Payment simulation failed. Please try again.'}
+                                {paymentMutation.error?.response?.data?.error || 'Payment failed. Please try again.'}
                             </div>
                         )}
                     </div>
                     </fieldset>
+                    </form>
+                ) : (
+                    <div className="mt-4">
+                        <div className="form-message text-info mb-3">
+                            {paymentNotice?.message}
+                        </div>
+                    </div>
+                )}
 
-                    {checkoutEnrollment && (
-                        <PaymentDemoPanel
-                            enrollment={checkoutEnrollment}
-                            isProcessing={paymentMutation.isPending}
-                            onOutcome={handlePaymentOutcome}
-                        />
-                    )}
-                </form>
+                {checkoutEnrollment && (
+                    <PaymentDemoPanel
+                        enrollment={checkoutEnrollment}
+                        isProcessing={paymentMutation.isPending}
+                        onPay={handlePaymentSubmit}
+                    />
+                )}
             </div>
         </div>
     );

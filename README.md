@@ -90,6 +90,7 @@ Admin login at `http://localhost:3000/admin`:
 
 - All fees are monthly prices in Indian rupees.
 - Form submissions are stored only in the local browser.
-- Enrollment checkout now includes a demo-only in-app payment simulation before activation.
+- Enrollment checkout now includes a full debit/credit card style demo UI before activation.
 - No real payment credentials are required for the current integration; it does not contact a live gateway.
+- Demo checkout approval is always successful to keep the enrollment flow deterministic.
 - The code is designed to be easy to read before it is optimized or abstracted.

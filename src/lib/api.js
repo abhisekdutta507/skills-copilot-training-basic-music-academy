@@ -11,7 +11,7 @@ export const classesApi = {
 
 export const enrollmentsApi = {
     submit: (data) => api.post('/enrollments', data).then(r => r.data),
-    completePayment: (id, data) => api.post(`/enrollments/${id}/payment`, data).then(r => r.data),
+    completePayment: (id) => api.post(`/enrollments/${id}/payment`).then(r => r.data),
 };
 
 export const demoRequestsApi = {
