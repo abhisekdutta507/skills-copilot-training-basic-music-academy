@@ -53,12 +53,12 @@ The starter includes sample programs for:
 
 ## Suggested Refactor Directions
 
-- Replace seeded data with an API
-- Split rendering into reusable UI modules
-- Convert the project to React, Vue, or another framework
-- Add authentication and admin workflows
-- Connect forms to a real backend and database
-- Add payment integration
+- [ ] Convert the project to React, Vue, or another framework
+- [ ] Split rendering into reusable UI modules
+- [ ] Replace seeded data with an API
+- [ ] Add authentication and admin workflows
+- [ ] Connect forms to a real backend and database
+- [ ] Add payment integration
 
 ## Notes
 

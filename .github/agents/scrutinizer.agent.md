@@ -1,5 +1,5 @@
 ---
-name: "scrutinizer"
+name: "Scrutinizer"
 description: "Use when you need Vitest unit tests for frontend components, exhaustive edge-case coverage, boundary testing, negative-path testing, and coverage-focused test generation."
 tools: [read, search, edit, execute, todo]
 argument-hint: "Target component/module, test framework, and any coverage goals"
