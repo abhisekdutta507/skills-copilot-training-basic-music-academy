@@ -1,21 +1,23 @@
 import { NextResponse } from 'next/server';
-import { classes } from '../../../data/classes.js';
+import { db } from '@/lib/db.js';
 
-export function GET(request) {
+export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const level = searchParams.get('level');
     const search = searchParams.get('search');
 
-    let result = classes;
+    const where = {};
 
     if (category && category !== 'all') {
-        result = result.filter(c => c.category === category);
+        where.category = category;
     }
 
     if (level && level !== 'all') {
-        result = result.filter(c => c.level === level);
+        where.level = level;
     }
+
+    let result = await db.course.findMany({ where, orderBy: { name: 'asc' } });
 
     if (search && search.trim()) {
         const term = search.trim().toLowerCase();

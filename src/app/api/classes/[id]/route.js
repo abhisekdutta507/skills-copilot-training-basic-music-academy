@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getClassById } from '../../../../data/classes.js';
+import { db } from '@/lib/db.js';
 
 export async function GET(_request, { params }) {
     const { id } = await params;
-    const classData = getClassById(id);
-    if (!classData) {
+    const course = await db.course.findUnique({ where: { id } });
+    if (!course) {
         return NextResponse.json({ error: 'Class not found' }, { status: 404 });
     }
-    return NextResponse.json(classData);
+    return NextResponse.json(course);
 }

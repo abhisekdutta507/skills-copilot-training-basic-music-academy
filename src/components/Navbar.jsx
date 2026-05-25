@@ -43,6 +43,9 @@ export default function Navbar() {
                         <li className="nav-item">
                             <Link className={linkClass('/enroll')} href="/enroll">Enroll</Link>
                         </li>
+                        <li className="nav-item">
+                            <Link className={linkClass('/admin')} href="/admin">Admin</Link>
+                        </li>
                     </ul>
                 </div>
             </div>

@@ -1,12 +1,23 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { formatPrice } from '../../utils/format.js';
+import { demoRequestsApi } from '@/lib/api.js';
 
 export default function DemoForm({ allClasses = [], selectedClassId, onClassChange, onSubmit }) {
     const [validated, setValidated] = useState(false);
-    const [message, setMessage] = useState('');
     const formRef = useRef(null);
+
+    const mutation = useMutation({
+        mutationFn: demoRequestsApi.submit,
+        onSuccess: (_, variables) => {
+            onSubmit('demo', variables);
+            setValidated(false);
+            formRef.current?.reset();
+            onClassChange(variables.classId);
+        },
+    });
 
     function handleSubmit(event) {
         event.preventDefault();
@@ -14,13 +25,15 @@ export default function DemoForm({ allClasses = [], selectedClassId, onClassChan
             setValidated(true);
             return;
         }
-
-        const data = Object.fromEntries(new FormData(formRef.current));
-        onSubmit('demo', data);
-        setMessage('Demo request saved in local storage.');
-        setValidated(false);
-        formRef.current.reset();
-        onClassChange(data.classId);
+        const raw = Object.fromEntries(new FormData(formRef.current));
+        mutation.mutate({
+            studentName: raw.studentName,
+            age: Number(raw.age),
+            email: raw.email,
+            phone: raw.phone,
+            classId: raw.classId,
+            preferredDate: raw.preferredSlot || undefined,
+        });
     }
 
     return (
@@ -123,8 +136,21 @@ export default function DemoForm({ allClasses = [], selectedClassId, onClassChan
                         ></textarea>
                     </div>
                     <div className="col-12 d-flex flex-wrap gap-3 align-items-center">
-                        <button className="btn btn-accent" type="submit">Request Demo</button>
-                        {message && <div className="form-message text-success">{message}</div>}
+                        <button className="btn btn-accent" type="submit" disabled={mutation.isPending}>
+                            {mutation.isPending ? (
+                                <><span className="spinner-border spinner-border-sm me-2" />Submitting…</>
+                            ) : (
+                                'Request Demo'
+                            )}
+                        </button>
+                        {mutation.isSuccess && (
+                            <div className="form-message text-success">Demo request submitted!</div>
+                        )}
+                        {mutation.isError && (
+                            <div className="form-message text-danger">
+                                {mutation.error?.response?.data?.error || 'Submission failed. Please try again.'}
+                            </div>
+                        )}
                     </div>
                 </form>
             </div>

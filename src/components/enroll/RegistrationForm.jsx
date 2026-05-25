@@ -1,12 +1,23 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { formatPrice } from '../../utils/format.js';
+import { enrollmentsApi } from '@/lib/api.js';
 
 export default function RegistrationForm({ allClasses = [], selectedClassId, onClassChange, onSubmit }) {
     const [validated, setValidated] = useState(false);
-    const [message, setMessage] = useState('');
     const formRef = useRef(null);
+
+    const mutation = useMutation({
+        mutationFn: enrollmentsApi.submit,
+        onSuccess: (_, variables) => {
+            onSubmit('registration', variables);
+            setValidated(false);
+            formRef.current?.reset();
+            onClassChange(variables.classId);
+        },
+    });
 
     function handleSubmit(event) {
         event.preventDefault();
@@ -14,13 +25,15 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
             setValidated(true);
             return;
         }
-
-        const data = Object.fromEntries(new FormData(formRef.current));
-        onSubmit('registration', data);
-        setMessage('Registration saved in local storage.');
-        setValidated(false);
-        formRef.current.reset();
-        onClassChange(data.classId);
+        const raw = Object.fromEntries(new FormData(formRef.current));
+        mutation.mutate({
+            studentName: raw.studentName,
+            guardianName: raw.guardianName,
+            email: raw.email,
+            phone: raw.phone,
+            classId: raw.classId,
+            startDate: raw.startMonth || undefined,
+        });
     }
 
     return (
@@ -168,10 +181,21 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
                         ></textarea>
                     </div>
                     <div className="col-12 d-flex flex-wrap gap-3 align-items-center">
-                        <button className="btn btn-dark" type="submit">
-                            Complete Registration
+                        <button className="btn btn-dark" type="submit" disabled={mutation.isPending}>
+                            {mutation.isPending ? (
+                                <><span className="spinner-border spinner-border-sm me-2" />Submitting…</>
+                            ) : (
+                                'Complete Registration'
+                            )}
                         </button>
-                        {message && <div className="form-message text-success">{message}</div>}
+                        {mutation.isSuccess && (
+                            <div className="form-message text-success">Registration submitted successfully!</div>
+                        )}
+                        {mutation.isError && (
+                            <div className="form-message text-danger">
+                                {mutation.error?.response?.data?.error || 'Submission failed. Please try again.'}
+                            </div>
+                        )}
                     </div>
                 </form>
             </div>

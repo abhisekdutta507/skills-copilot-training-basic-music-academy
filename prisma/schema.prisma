@@ -1,0 +1,68 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+}
+
+// Courses managed by admin (seeded from src/data/classes.js)
+model Course {
+  id            String        @id // kebab-case slug, used as ?class= URL param
+  name          String
+  category      String        // Strings | Keys | Percussion | Wind | Vocals
+  level         String        // Beginner | Intermediate | Advanced
+  monthlyFee    Int           // INR
+  duration      String
+  schedule      String
+  batch         String        // Weekday | Weekend
+  demoAvailable Boolean       @default(true)
+  ageGroup      String
+  icon          String
+  blurb         String
+  instructor    String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  enrollments   Enrollment[]
+  demoRequests  DemoRequest[]
+}
+
+// Student registrations (ACTIVE | REFUNDED | CANCELLED)
+model Enrollment {
+  id           String    @id @default(cuid())
+  studentName  String
+  guardianName String
+  email        String
+  phone        String
+  courseId     String
+  course       Course    @relation(fields: [courseId], references: [id])
+  startDate    String?
+  status       String    @default("ACTIVE")
+  refundedAt   DateTime?
+  createdAt    DateTime  @default(now())
+}
+
+// Demo class booking requests (PENDING | CONFIRMED | CANCELLED)
+model DemoRequest {
+  id            String   @id @default(cuid())
+  studentName   String
+  age           Int
+  email         String
+  phone         String
+  courseId      String
+  course        Course   @relation(fields: [courseId], references: [id])
+  preferredDate String?
+  status        String   @default("PENDING")
+  createdAt     DateTime @default(now())
+}
