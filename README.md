@@ -12,32 +12,33 @@ Bootstrap starter application for a music academy website. The project is intent
 
 ## Stack
 
-- Plain HTML
-- Plain CSS
-- Plain JavaScript
-- Bootstrap 5 via CDN
+- React 18 (via Vite)
+- React Router DOM v6
+- Bootstrap 5 (npm)
+- Plain CSS (custom design tokens)
 
 ## Project Structure
 
-- `index.html` - landing page with featured classes and calls to action
-- `pages/classes.html` - catalog page with filters
-- `pages/enroll.html` - demo booking and registration forms
+- `index.html` - Vite entry point
+- `src/main.jsx` - React app bootstrap
+- `src/App.jsx` - router and layout shell
+- `src/data/classes.js` - seeded class data (ESM)
+- `src/utils/format.js` - INR price formatter
+- `src/hooks/useSubmissions.js` - localStorage submissions hook
+- `src/components/` - Navbar, Footer, ClassCard
+- `src/pages/` - HomePage, ClassesPage, EnrollPage
 - `css/style.css` - custom styles layered on Bootstrap
-- `js/data.js` - seeded class data
-- `js/app.js` - shared rendering and catalog behavior
-- `js/forms.js` - form handling and local storage submission history
 
 ## Run Locally
 
-Because this is a static project, you can open `index.html` directly in a browser.
-
-If you prefer serving it locally, use a simple static server. For example with Python:
+Install dependencies and start the dev server:
 
 ```bash
-python -m http.server 5500
+npm install
+npm run dev
 ```
 
-Then open `http://localhost:5500`.
+Then open `http://localhost:5173`.
 
 ## Seed Data Included
 
@@ -53,7 +54,7 @@ The starter includes sample programs for:
 
 ## Suggested Refactor Directions
 
-- [ ] Convert the project to React, Vue, or another framework
+- [x] Convert the project to React, Vue, or another framework
 - [ ] Split rendering into reusable UI modules
 - [ ] Replace seeded data with an API
 - [ ] Add authentication and admin workflows
