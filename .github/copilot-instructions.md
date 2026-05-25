@@ -12,7 +12,7 @@ Basic Music Academy is a **hackathon starter** — a deliberately simple website
 |---|---|
 | Runtime | Next.js 15 App Router + React 18 |
 | Entry | `src/app/layout.jsx` mounts Navbar, Footer, QueryProvider |
-| Styling | Bootstrap 5 (npm) + custom design tokens in `css/style.css` |
+| Styling | Bootstrap 5 (npm) + custom design tokens in `css/style.css` (including Energetic Creative Studio treatment for the admin login experience) |
 | Data | `src/data/classes.js` ESM module with 7 seeded class objects (served via API) |
 | API routes | `src/app/api/classes/route.js` · `src/app/api/classes/[id]/route.js` |
 | API client | `src/lib/api.js` — axios instance + `classesApi` helpers |
@@ -77,6 +77,7 @@ Seeded programs: Contemporary Guitar, Piano Essentials, Violin Performance Lab, 
 - Keep class search/filter behavior case-insensitive across `name`, `category`, `blurb`, and `instructor`.
 - For local persistence, continue using `"basic-music-academy-submissions"` and handle storage failures safely.
 - Preserve Bootstrap-first layout patterns and custom tokens from `css/style.css`.
+- Preserve the implemented **Energetic Creative Studio** visual direction on the admin login page (`src/app/login/page.jsx` + related rules in `css/style.css`): bold gradients, high-contrast panels, expressive typography, and subtle motion.
 - **All API calls from client components must use TanStack React Query (`useQuery` / `useMutation`) together with the axios-based helpers in `src/lib/api.js`.** Never use raw `fetch` or bare `axios` calls inside components.
 - Add new API endpoints in `src/app/api/` and expose them through `src/lib/api.js` before consuming them in components.
 - The `QueryClientProvider` is mounted in `src/components/QueryProvider.jsx` and included in the root layout — do not create additional providers.
@@ -116,3 +117,4 @@ Seeded programs: Contemporary Guitar, Piano Essentials, Violin Performance Lab, 
 - When generating tests, use **Vitest** as the default framework.
 - Do not add `console.log` debug statements; use `console.warn` for recoverable errors when warning logs are needed.
 - **Never use raw `fetch` or bare `axios` in client components.** Always use `useQuery` / `useMutation` from TanStack React Query with the helpers exported from `src/lib/api.js`.
+- Keep the admin login design language intentionally energetic and non-pale; avoid flattening it into a generic neutral UI during refactors.
