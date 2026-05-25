@@ -5,10 +5,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 
 const NAV_ITEMS = [
-    { href: '/admin', label: 'Dashboard', icon: '📊', exact: true },
-    { href: '/admin/courses', label: 'Courses', icon: '🎵' },
-    { href: '/admin/enrollments', label: 'Enrollments', icon: '📋' },
-    { href: '/admin/demo-requests', label: 'Demo Requests', icon: '🎤' },
+    { href: '/admin', label: 'Dashboard', shortLabel: 'Home', icon: '📊', exact: true },
+    { href: '/admin/courses', label: 'Courses', shortLabel: 'Courses', icon: '🎵' },
+    { href: '/admin/enrollments', label: 'Enrollments', shortLabel: 'Enroll', icon: '📋' },
+    { href: '/admin/demo-requests', label: 'Demo Requests', shortLabel: 'Demos', icon: '🎤' },
 ];
 
 export default function AdminSidebar() {
@@ -38,7 +38,7 @@ export default function AdminSidebar() {
 
             <nav className="flex-grow-1 px-2 pb-2">
                 <ul className="nav flex-column gap-1">
-                    {NAV_ITEMS.map(({ href, label, icon, exact }) => (
+                    {NAV_ITEMS.map(({ href, label, shortLabel, icon, exact }) => (
                         <li key={href} className="nav-item">
                             <Link
                                 href={href}
@@ -47,7 +47,8 @@ export default function AdminSidebar() {
                                 }`}
                             >
                                 <span className="admin-sidebar-icon">{icon}</span>
-                                <span>{label}</span>
+                                <span className="admin-sidebar-label admin-sidebar-label-full">{label}</span>
+                                <span className="admin-sidebar-label admin-sidebar-label-short">{shortLabel}</span>
                             </Link>
                         </li>
                     ))}
@@ -55,14 +56,21 @@ export default function AdminSidebar() {
             </nav>
 
             <div className="p-3 admin-sidebar-footer mt-auto">
-                <Link href="/" className="btn btn-outline-light btn-sm w-100 mb-2 admin-sidebar-btn">
-                    ← View Site
+                <Link
+                    href="/"
+                    className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-ghost mb-2 admin-sidebar-btn"
+                    aria-label="Visit site"
+                >
+                    <span className="admin-sidebar-btn-icon admin-sidebar-btn-icon-visit">⌂</span>
+                    <span className="admin-sidebar-btn-text">Visit</span>
                 </Link>
                 <button
                     onClick={handleSignOut}
-                    className="btn btn-outline-danger btn-sm w-100 admin-sidebar-btn"
+                    className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-danger admin-sidebar-btn"
+                    aria-label="Sign out"
                 >
-                    Sign out
+                    <span className="admin-sidebar-btn-icon">⎋</span>
+                    <span className="admin-sidebar-btn-text">Sign out</span>
                 </button>
             </div>
         </aside>

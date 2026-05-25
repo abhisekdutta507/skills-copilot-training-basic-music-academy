@@ -7,8 +7,12 @@ import { adminDemoRequestsApi } from '@/lib/api.js';
 const STATUS_OPTIONS = ['all', 'PENDING', 'CONFIRMED', 'CANCELLED'];
 
 function StatusBadge({ status }) {
-    const map = { PENDING: 'warning', CONFIRMED: 'success', CANCELLED: 'secondary' };
-    return <span className={`badge bg-${map[status] ?? 'secondary'}`}>{status}</span>;
+    const map = {
+        PENDING: 'admin-status-pending',
+        CONFIRMED: 'admin-status-confirmed',
+        CANCELLED: 'admin-status-cancelled',
+    };
+    return <span className={`admin-status-chip ${map[status] ?? 'admin-status-default'}`}>{status}</span>;
 }
 
 export default function AdminDemoRequestsPage() {
@@ -33,18 +37,18 @@ export default function AdminDemoRequestsPage() {
 
     return (
         <div className="admin-page p-3 p-md-4 p-xl-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="admin-page-head d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-4">
                 <div>
                     <h1 className="h3 mb-1">Demo Requests</h1>
                     <p className="text-body-secondary mb-0">{demoRequests.length} request(s)</p>
                 </div>
-                <div className="d-flex align-items-center gap-2">
-                    <label className="form-label mb-0 text-nowrap">Filter by status</label>
+                <div className="admin-filter-bar">
+                    <label className="form-label text-nowrap" htmlFor="demo-request-status-filter">Filter by status</label>
                     <select
                         className="form-select form-select-sm"
+                        id="demo-request-status-filter"
                         value={statusFilter}
                         onChange={e => setStatusFilter(e.target.value)}
-                        style={{ width: 'auto' }}
                     >
                         {STATUS_OPTIONS.map(s => (
                             <option key={s} value={s}>{s === 'all' ? 'All' : s}</option>
@@ -54,18 +58,22 @@ export default function AdminDemoRequestsPage() {
             </div>
 
             {isLoading ? (
-                <div className="text-center py-5"><span className="spinner-border text-primary" /></div>
+                <div className="admin-loading-state">
+                    <span className="spinner-border text-primary" />
+                    <p className="admin-empty-title">Loading demo requests</p>
+                    <p className="admin-empty-copy">Pulling pending and scheduled demo records.</p>
+                </div>
             ) : demoRequests.length === 0 ? (
-                <div className="card">
-                    <div className="card-body text-center py-5">
-                        <p className="text-body-secondary mb-0">No demo requests found.</p>
-                    </div>
+                <div className="admin-empty-state">
+                    <div className="h2 mb-0">🎤</div>
+                    <p className="admin-empty-title">No demo requests found</p>
+                    <p className="admin-empty-copy">Incoming trial class requests will land here for quick follow-up.</p>
                 </div>
             ) : (
-                <div className="card">
-                    <div className="table-responsive">
-                        <table className="table table-hover mb-0">
-                            <thead className="table-light">
+                <div className="card admin-panel admin-table-shell">
+                    <div className="table-responsive admin-table-wrap">
+                        <table className="table table-hover mb-0 align-middle admin-table admin-table-responsive-mobile">
+                            <thead>
                                 <tr>
                                     <th>Student</th>
                                     <th>Age</th>
@@ -79,30 +87,30 @@ export default function AdminDemoRequestsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {demoRequests.map(d => (
-                                    <tr key={d.id}>
-                                        <td className="fw-semibold">{d.studentName}</td>
-                                        <td>{d.age}</td>
-                                        <td>{d.email}</td>
-                                        <td>{d.phone}</td>
-                                        <td>{d.course?.name}</td>
-                                        <td>{d.preferredDate || <span className="text-body-secondary">—</span>}</td>
-                                        <td><StatusBadge status={d.status} /></td>
-                                        <td className="text-body-secondary small">
+                                {demoRequests.map((d, index) => (
+                                    <tr key={d.id} style={{ '--row-delay': `${index * 45}ms` }}>
+                                        <td className="fw-semibold" data-label="Student">{d.studentName}</td>
+                                        <td data-label="Age">{d.age}</td>
+                                        <td data-label="Email">{d.email}</td>
+                                        <td data-label="Phone">{d.phone}</td>
+                                        <td data-label="Course">{d.course?.name}</td>
+                                        <td data-label="Preferred Date">{d.preferredDate || <span className="text-body-secondary">—</span>}</td>
+                                        <td data-label="Status"><StatusBadge status={d.status} /></td>
+                                        <td className="text-body-secondary small" data-label="Submitted">
                                             {new Date(d.createdAt).toLocaleDateString('en-IN')}
                                         </td>
-                                        <td>
+                                        <td data-label="Actions">
                                             {d.status === 'PENDING' && (
-                                                <div className="d-flex gap-1">
+                                                <div className="admin-row-actions">
                                                     <button
-                                                        className="btn btn-sm btn-success"
+                                                        className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-emerald"
                                                         onClick={() => handleStatusChange(d.id, 'CONFIRMED')}
                                                         disabled={updateStatusMutation.isPending}
                                                     >
                                                         Confirm
                                                     </button>
                                                     <button
-                                                        className="btn btn-sm btn-outline-danger"
+                                                        className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-danger"
                                                         onClick={() => handleStatusChange(d.id, 'CANCELLED')}
                                                         disabled={updateStatusMutation.isPending}
                                                     >

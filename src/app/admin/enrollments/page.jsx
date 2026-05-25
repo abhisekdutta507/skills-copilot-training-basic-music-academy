@@ -8,8 +8,12 @@ import { formatPrice } from '@/utils/format.js';
 const STATUS_OPTIONS = ['all', 'ACTIVE', 'REFUNDED', 'CANCELLED'];
 
 function StatusBadge({ status }) {
-    const map = { ACTIVE: 'success', REFUNDED: 'warning', CANCELLED: 'secondary' };
-    return <span className={`badge bg-${map[status] ?? 'secondary'}`}>{status}</span>;
+    const map = {
+        ACTIVE: 'admin-status-active',
+        REFUNDED: 'admin-status-refunded',
+        CANCELLED: 'admin-status-cancelled',
+    };
+    return <span className={`admin-status-chip ${map[status] ?? 'admin-status-default'}`}>{status}</span>;
 }
 
 export default function AdminEnrollmentsPage() {
@@ -33,18 +37,18 @@ export default function AdminEnrollmentsPage() {
 
     return (
         <div className="admin-page p-3 p-md-4 p-xl-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="admin-page-head d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-4">
                 <div>
                     <h1 className="h3 mb-1">Enrollments</h1>
                     <p className="text-body-secondary mb-0">{enrollments.length} record(s)</p>
                 </div>
-                <div className="d-flex align-items-center gap-2">
-                    <label className="form-label mb-0 text-nowrap">Filter by status</label>
+                <div className="admin-filter-bar">
+                    <label className="form-label text-nowrap" htmlFor="enrollment-status-filter">Filter by status</label>
                     <select
                         className="form-select form-select-sm"
+                        id="enrollment-status-filter"
                         value={statusFilter}
                         onChange={e => setStatusFilter(e.target.value)}
-                        style={{ width: 'auto' }}
                     >
                         {STATUS_OPTIONS.map(s => (
                             <option key={s} value={s}>{s === 'all' ? 'All' : s}</option>
@@ -54,18 +58,22 @@ export default function AdminEnrollmentsPage() {
             </div>
 
             {isLoading ? (
-                <div className="text-center py-5"><span className="spinner-border text-primary" /></div>
+                <div className="admin-loading-state">
+                    <span className="spinner-border text-primary" />
+                    <p className="admin-empty-title">Loading enrollments</p>
+                    <p className="admin-empty-copy">Fetching latest registrations and payment status.</p>
+                </div>
             ) : enrollments.length === 0 ? (
-                <div className="card">
-                    <div className="card-body text-center py-5">
-                        <p className="text-body-secondary mb-0">No enrollments found.</p>
-                    </div>
+                <div className="admin-empty-state">
+                    <div className="h2 mb-0">📋</div>
+                    <p className="admin-empty-title">No enrollments found</p>
+                    <p className="admin-empty-copy">Try a different filter or wait for new registrations.</p>
                 </div>
             ) : (
-                <div className="card">
-                    <div className="table-responsive">
-                        <table className="table table-hover mb-0">
-                            <thead className="table-light">
+                <div className="card admin-panel admin-table-shell">
+                    <div className="table-responsive admin-table-wrap">
+                        <table className="table table-hover mb-0 align-middle admin-table admin-table-responsive-mobile">
+                            <thead>
                                 <tr>
                                     <th>Student</th>
                                     <th>Guardian</th>
@@ -78,29 +86,31 @@ export default function AdminEnrollmentsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {enrollments.map(e => (
-                                    <tr key={e.id}>
-                                        <td className="fw-semibold">{e.studentName}</td>
-                                        <td>{e.guardianName}</td>
-                                        <td>{e.email}</td>
-                                        <td>{e.phone}</td>
-                                        <td>{e.course?.name}</td>
-                                        <td><StatusBadge status={e.status} /></td>
-                                        <td className="text-body-secondary small">
+                                {enrollments.map((e, index) => (
+                                    <tr key={e.id} style={{ '--row-delay': `${index * 45}ms` }}>
+                                        <td className="fw-semibold" data-label="Student">{e.studentName}</td>
+                                        <td data-label="Guardian">{e.guardianName}</td>
+                                        <td data-label="Email">{e.email}</td>
+                                        <td data-label="Phone">{e.phone}</td>
+                                        <td data-label="Course">{e.course?.name}</td>
+                                        <td data-label="Status"><StatusBadge status={e.status} /></td>
+                                        <td className="text-body-secondary small" data-label="Date">
                                             {new Date(e.createdAt).toLocaleDateString('en-IN')}
                                         </td>
-                                        <td>
+                                        <td data-label="Actions">
                                             {e.status === 'ACTIVE' && (
-                                                <button
-                                                    className="btn btn-sm btn-outline-warning"
-                                                    onClick={() => handleRefund(e.id, e.studentName)}
-                                                    disabled={refundMutation.isPending}
-                                                >
-                                                    Refund
-                                                </button>
+                                                <div className="admin-row-actions">
+                                                    <button
+                                                        className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-amber"
+                                                        onClick={() => handleRefund(e.id, e.studentName)}
+                                                        disabled={refundMutation.isPending}
+                                                    >
+                                                        Refund
+                                                    </button>
+                                                </div>
                                             )}
                                             {e.status === 'REFUNDED' && e.refundedAt && (
-                                                <span className="text-body-secondary small">
+                                                <span className="admin-refund-date">
                                                     {new Date(e.refundedAt).toLocaleDateString('en-IN')}
                                                 </span>
                                             )}

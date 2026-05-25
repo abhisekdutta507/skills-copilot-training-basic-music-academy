@@ -69,7 +69,7 @@ export default function AdminDashboard() {
 
     return (
         <div className="admin-page p-3 p-md-4 p-xl-5">
-            <div className="admin-hero d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4 mb-xl-5">
+            <div className="admin-hero admin-page-head d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4 mb-xl-5">
                 <div>
                     <span className="admin-kicker">Operations Dashboard</span>
                     <h1 className="h2 mb-2">Welcome to Basic Music Academy</h1>
@@ -103,19 +103,23 @@ export default function AdminDashboard() {
 
             <div className="row g-4">
                 <div className="col-xl-8">
-                    <div className="card admin-panel h-100">
+                    <div className="card admin-panel admin-table-shell h-100">
                         <div className="card-header d-flex justify-content-between align-items-center">
                             <span className="fw-semibold">Recent Enrollments</span>
-                            <Link href="/admin/enrollments" className="btn btn-sm btn-outline-primary">
+                            <Link href="/admin/enrollments" className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-ghost">
                                 View all
                             </Link>
                         </div>
                         <div className="card-body p-0">
                             {recentEnrollments.length === 0 ? (
-                                <p className="text-body-secondary text-center p-4 mb-0">No enrollments yet.</p>
+                                <div className="admin-empty-state m-3">
+                                    <div className="h2 mb-0">🎼</div>
+                                    <p className="admin-empty-title">No enrollments yet</p>
+                                    <p className="admin-empty-copy">New admissions will appear here once students register.</p>
+                                </div>
                             ) : (
-                                <div className="table-responsive">
-                                    <table className="table table-hover mb-0 align-middle admin-table">
+                                <div className="table-responsive admin-table-wrap">
+                                    <table className="table table-hover mb-0 align-middle admin-table admin-table-responsive-mobile">
                                         <thead>
                                             <tr>
                                                 <th>Student</th>
@@ -126,17 +130,17 @@ export default function AdminDashboard() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {recentEnrollments.map(e => (
-                                                <tr key={e.id}>
-                                                    <td className="fw-semibold">{e.studentName}</td>
-                                                    <td className="text-truncate" style={{ maxWidth: 220 }}>
+                                            {recentEnrollments.map((e, index) => (
+                                                <tr key={e.id} style={{ '--row-delay': `${index * 45}ms` }}>
+                                                    <td className="fw-semibold" data-label="Student">{e.studentName}</td>
+                                                    <td className="text-truncate" data-label="Course" style={{ maxWidth: 220 }}>
                                                         {e.course?.name}
                                                     </td>
-                                                    <td>{formatPrice(e.course?.monthlyFee ?? 0)}</td>
-                                                    <td>
+                                                    <td data-label="Fee">{formatPrice(e.course?.monthlyFee ?? 0)}</td>
+                                                    <td data-label="Status">
                                                         <StatusBadge status={e.status} />
                                                     </td>
-                                                    <td className="text-body-secondary small">
+                                                    <td className="text-body-secondary small" data-label="Date">
                                                         {new Date(e.createdAt).toLocaleDateString('en-IN')}
                                                     </td>
                                                 </tr>
@@ -153,16 +157,16 @@ export default function AdminDashboard() {
                     <div className="card admin-panel">
                         <div className="card-header fw-semibold">Quick Actions</div>
                         <div className="card-body d-flex flex-column gap-2">
-                            <Link href="/admin/courses/new" className="btn btn-primary">
+                            <Link href="/admin/courses/new" className="btn admin-action-btn admin-action-btn-primary">
                                 + Add New Course
                             </Link>
-                            <Link href="/admin/demo-requests?status=PENDING" className="btn btn-outline-warning">
+                            <Link href="/admin/demo-requests?status=PENDING" className="btn admin-action-btn admin-action-btn-amber">
                                 View Pending Demos ({pendingDemos})
                             </Link>
-                            <Link href="/admin/enrollments?status=ACTIVE" className="btn btn-outline-success">
+                            <Link href="/admin/enrollments?status=ACTIVE" className="btn admin-action-btn admin-action-btn-emerald">
                                 View Active Enrollments ({activeEnrollments})
                             </Link>
-                            <Link href="/admin/enrollments?status=REFUNDED" className="btn btn-outline-danger">
+                            <Link href="/admin/enrollments?status=REFUNDED" className="btn admin-action-btn admin-action-btn-danger">
                                 View Refunds ({refundedEnrollments})
                             </Link>
                         </div>
@@ -175,14 +179,14 @@ export default function AdminDashboard() {
 
 function StatusBadge({ status }) {
     const map = {
-        ACTIVE: 'success',
-        REFUNDED: 'warning',
-        CANCELLED: 'secondary',
-        PENDING: 'info',
-        CONFIRMED: 'primary',
+        ACTIVE: 'admin-status-active',
+        REFUNDED: 'admin-status-refunded',
+        CANCELLED: 'admin-status-cancelled',
+        PENDING: 'admin-status-pending',
+        CONFIRMED: 'admin-status-confirmed',
     };
     return (
-        <span className={`badge bg-${map[status] ?? 'secondary'}`}>
+        <span className={`admin-status-chip ${map[status] ?? 'admin-status-default'}`}>
             {status}
         </span>
     );
