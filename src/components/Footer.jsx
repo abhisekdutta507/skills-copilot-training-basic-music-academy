@@ -1,13 +1,15 @@
-import { useLocation } from 'react-router-dom';
+'use client';
+
+import { usePathname } from 'next/navigation';
 
 const subtitles = {
     '/enroll': 'This starter stores form submissions in local browser storage.',
     '/classes': 'All fees shown are monthly fees in INR.',
-    '/': 'Bootstrap, React, seeded class data.',
+    '/': 'Next.js, React, API-driven class data.',
 };
 
 export default function Footer() {
-    const { pathname } = useLocation();
+    const pathname = usePathname();
     const subtitle = subtitles[pathname] ?? subtitles['/'];
 
     return (

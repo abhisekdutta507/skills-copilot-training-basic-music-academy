@@ -1,30 +1,46 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
-import { classes } from '../data/classes.js';
-import { useSubmissions } from '../hooks/useSubmissions.js';
-import ClassSummary from '../components/enroll/ClassSummary.jsx';
-import SubmissionList from '../components/enroll/SubmissionList.jsx';
-import DemoForm from '../components/enroll/DemoForm.jsx';
-import RegistrationForm from '../components/enroll/RegistrationForm.jsx';
+'use client';
 
-export default function EnrollPage() {
-    const [searchParams] = useSearchParams();
-    const { hash } = useLocation();
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { classesApi } from '../../lib/api';
+import { useSubmissions } from '../../hooks/useSubmissions';
+import ClassSummary from '../../components/enroll/ClassSummary';
+import SubmissionList from '../../components/enroll/SubmissionList';
+import DemoForm from '../../components/enroll/DemoForm';
+import RegistrationForm from '../../components/enroll/RegistrationForm';
+
+export default function EnrollContent() {
+    const searchParams = useSearchParams();
     const { submissions, addSubmission } = useSubmissions();
 
-    const [selectedClassId, setSelectedClassId] = useState(() => {
-        const id = searchParams.get('class');
-        return id && classes.some(c => c.id === id) ? id : '';
+    const { data: allClasses = [] } = useQuery({
+        queryKey: ['classes'],
+        queryFn: classesApi.getAll,
     });
 
-    // Scroll to hash section on mount and hash changes.
+    const [selectedClassId, setSelectedClassId] = useState(() => searchParams.get('class') ?? '');
+
+    // Validate the preselected class id once classes are loaded
     useEffect(() => {
+        if (!allClasses.length) return;
+        const id = searchParams.get('class');
+        if (id && allClasses.some(c => c.id === id)) {
+            setSelectedClassId(id);
+        }
+    }, [allClasses, searchParams]);
+
+    // Scroll to hash section on mount
+    useEffect(() => {
+        const hash = window.location.hash;
         if (!hash) return;
         const el = document.querySelector(hash);
         if (el) {
             setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 100);
         }
-    }, [hash]);
+    }, []);
+
+    const selectedClass = allClasses.find(c => c.id === selectedClassId) ?? null;
 
     return (
         <>
@@ -62,14 +78,17 @@ export default function EnrollPage() {
                         <div className="col-xl-4 order-xl-2">
                             <div className="sticky-summary">
                                 <div className="summary-card mb-4">
-                                    <ClassSummary classId={selectedClassId} />
+                                    <ClassSummary classData={selectedClass} />
                                 </div>
                                 <div className="summary-card">
                                     <div className="d-flex justify-content-between align-items-center mb-3">
                                         <h2 className="h5 mb-0">Recent submissions</h2>
                                         <span className="badge text-bg-light">Local only</span>
                                     </div>
-                                    <SubmissionList submissions={submissions} />
+                                    <SubmissionList
+                                        submissions={submissions}
+                                        allClasses={allClasses}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -77,11 +96,13 @@ export default function EnrollPage() {
                         <div className="col-xl-8 order-xl-1">
                             <div className="row g-4">
                                 <DemoForm
+                                    allClasses={allClasses}
                                     selectedClassId={selectedClassId}
                                     onClassChange={setSelectedClassId}
                                     onSubmit={addSubmission}
                                 />
                                 <RegistrationForm
+                                    allClasses={allClasses}
                                     selectedClassId={selectedClassId}
                                     onClassChange={setSelectedClassId}
                                     onSubmit={addSubmission}

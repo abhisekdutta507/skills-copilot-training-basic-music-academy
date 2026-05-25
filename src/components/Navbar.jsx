@@ -1,19 +1,26 @@
-import { NavLink } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
-    const linkClass = ({ isActive }) =>
-        `nav-link${isActive ? ' active' : ''}`;
+    const pathname = usePathname();
+
+    const linkClass = (href, exact = false) => {
+        const isActive = exact ? pathname === href : pathname.startsWith(href);
+        return `nav-link${isActive ? ' active' : ''}`;
+    };
 
     return (
         <nav className="navbar navbar-expand-lg academy-navbar sticky-top">
             <div className="container py-2">
-                <NavLink className="navbar-brand d-flex align-items-center gap-2" to="/">
+                <Link className="navbar-brand d-flex align-items-center gap-2" href="/">
                     <span className="brand-mark">B</span>
                     <span>
                         <span className="brand-title">Basic Music Academy</span>
                         <span className="brand-subtitle d-block">Learn. Perform. Grow.</span>
                     </span>
-                </NavLink>
+                </Link>
                 <button
                     className="navbar-toggler"
                     type="button"
@@ -28,13 +35,13 @@ export default function Navbar() {
                 <div className="collapse navbar-collapse" id="academyNav">
                     <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                         <li className="nav-item">
-                            <NavLink className={linkClass} to="/" end>Home</NavLink>
+                            <Link className={linkClass('/', true)} href="/">Home</Link>
                         </li>
                         <li className="nav-item">
-                            <NavLink className={linkClass} to="/classes">Classes</NavLink>
+                            <Link className={linkClass('/classes')} href="/classes">Classes</Link>
                         </li>
                         <li className="nav-item">
-                            <NavLink className={linkClass} to="/enroll">Enroll</NavLink>
+                            <Link className={linkClass('/enroll')} href="/enroll">Enroll</Link>
                         </li>
                     </ul>
                 </div>

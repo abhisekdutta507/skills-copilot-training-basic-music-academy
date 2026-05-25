@@ -10,13 +10,15 @@ Basic Music Academy is a **hackathon starter** — a deliberately simple website
 
 | Layer | Technology |
 |---|---|
-| Runtime | Vite + React 18 + React Router DOM |
-| Entry | `index.html` mounts `src/main.jsx` to `#root` |
+| Runtime | Next.js 15 App Router + React 18 |
+| Entry | `src/app/layout.jsx` mounts Navbar, Footer, QueryProvider |
 | Styling | Bootstrap 5 (npm) + custom design tokens in `css/style.css` |
-| Data | `src/data/classes.js` ESM module with 7 seeded class objects |
-| App layer | `src/App.jsx` route shell + page components |
-| Forms | `src/pages/EnrollPage.jsx` + `src/hooks/useSubmissions.js` (persisted to `localStorage`) |
-| Dev server | `npm install` then `npm run dev` → `http://localhost:5173` |
+| Data | `src/data/classes.js` ESM module with 7 seeded class objects (served via API) |
+| API routes | `src/app/api/classes/route.js` · `src/app/api/classes/[id]/route.js` |
+| API client | `src/lib/api.js` — axios instance + `classesApi` helpers |
+| Data fetching | TanStack React Query (`useQuery`) on all client components |
+| Forms | `src/app/enroll/EnrollContent.jsx` + `src/hooks/useSubmissions.js` (persisted to `localStorage`) |
+| Dev server | `npm install` then `npm run dev` → `http://localhost:3000` |
 
 ---
 
@@ -75,6 +77,9 @@ Seeded programs: Contemporary Guitar, Piano Essentials, Violin Performance Lab, 
 - Keep class search/filter behavior case-insensitive across `name`, `category`, `blurb`, and `instructor`.
 - For local persistence, continue using `"basic-music-academy-submissions"` and handle storage failures safely.
 - Preserve Bootstrap-first layout patterns and custom tokens from `css/style.css`.
+- **All API calls from client components must use TanStack React Query (`useQuery` / `useMutation`) together with the axios-based helpers in `src/lib/api.js`.** Never use raw `fetch` or bare `axios` calls inside components.
+- Add new API endpoints in `src/app/api/` and expose them through `src/lib/api.js` before consuming them in components.
+- The `QueryClientProvider` is mounted in `src/components/QueryProvider.jsx` and included in the root layout — do not create additional providers.
 
 ---
 
@@ -106,7 +111,8 @@ Seeded programs: Contemporary Guitar, Piano Essentials, Violin Performance Lab, 
 - Treat design-pattern usage as mandatory: choose clear, maintainable patterns that fit the feature instead of ad-hoc logic.
 - When adding new class data, follow the exact domain-model shape above.
 - When generating filters or search logic, keep them case-insensitive and operating on the same fields (`name`, `category`, `blurb`, `instructor`).
-- For app features, prefer React route pages in `src/pages/` and wire routes in `src/App.jsx`.
+- For app features, prefer React route pages in `src/app/` and follow Next.js App Router conventions.
 - Treat this repository as React-only (`src/` + shared assets); do not introduce or depend on a parallel vanilla JS implementation.
 - When generating tests, use **Vitest** as the default framework.
 - Do not add `console.log` debug statements; use `console.warn` for recoverable errors when warning logs are needed.
+- **Never use raw `fetch` or bare `axios` in client components.** Always use `useQuery` / `useMutation` from TanStack React Query with the helpers exported from `src/lib/api.js`.

@@ -1,6 +1,4 @@
-import { getClassById } from '../../data/classes.js';
-
-export default function SubmissionList({ submissions }) {
+export default function SubmissionList({ submissions, allClasses = [] }) {
     const recent = submissions.slice(-4).reverse();
 
     if (recent.length === 0) {
@@ -8,7 +6,7 @@ export default function SubmissionList({ submissions }) {
     }
 
     return recent.map((submission, index) => {
-        const cls = getClassById(submission.classId);
+        const cls = allClasses.find(c => c.id === submission.classId);
         const className = cls ? cls.name : 'Unknown class';
 
         return (

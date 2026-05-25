@@ -1,24 +1,33 @@
-import { useState, useMemo } from 'react';
-import { classes } from '../data/classes.js';
-import ClassCard from '../components/ClassCard.jsx';
-import CatalogFilters from '../components/classes/CatalogFilters.jsx';
+'use client';
 
-const categories = [...new Set(classes.map(c => c.category))];
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { classesApi } from '../../lib/api';
+import ClassCard from '../../components/ClassCard';
+import CatalogFilters from '../../components/classes/CatalogFilters';
 
 export default function ClassesPage() {
+    const { data: allClasses = [] } = useQuery({
+        queryKey: ['classes'],
+        queryFn: classesApi.getAll,
+    });
+
     const [category, setCategory] = useState('all');
     const [level, setLevel] = useState('all');
     const [search, setSearch] = useState('');
 
+    const categories = [...new Set(allClasses.map(c => c.category))];
+
     const filtered = useMemo(() => {
-        return classes.filter(c => {
+        return allClasses.filter(c => {
             const matchesCategory = category === 'all' || c.category === category;
             const matchesLevel = level === 'all' || c.level === level;
             const haystack = `${c.name} ${c.category} ${c.blurb} ${c.instructor}`.toLowerCase();
-            const matchesSearch = search.trim() === '' || haystack.includes(search.trim().toLowerCase());
+            const matchesSearch =
+                search.trim() === '' || haystack.includes(search.trim().toLowerCase());
             return matchesCategory && matchesLevel && matchesSearch;
         });
-    }, [category, level, search]);
+    }, [allClasses, category, level, search]);
 
     return (
         <>
@@ -31,8 +40,9 @@ export default function ClassesPage() {
                                 Compare classes, levels, schedules, and monthly fees.
                             </h1>
                             <p className="lead text-body-secondary mt-3 mb-0">
-                                This catalog is seeded from a single JavaScript data module so
-                                participants can later swap it for an API or CMS.
+                                The catalog is served from the{' '}
+                                <code>/api/classes</code> endpoint so it can be
+                                swapped for any backend or CMS.
                             </p>
                         </div>
                         <div className="col-lg-4">
@@ -66,7 +76,7 @@ export default function ClassesPage() {
                         ))}
                     </div>
 
-                    {filtered.length === 0 && (
+                    {filtered.length === 0 && allClasses.length > 0 && (
                         <div className="empty-state mt-4">
                             <h2 className="h4">No classes match your filters.</h2>
                             <p className="mb-0 text-body-secondary">

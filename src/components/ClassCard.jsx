@@ -1,12 +1,9 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { formatPrice } from '../utils/format.js';
 
 export default function ClassCard({ musicClass }) {
-    const enrollTo = (hash) => ({
-        pathname: '/enroll',
-        search: `?class=${musicClass.id}`,
-        hash,
-    });
+    const enrollHref = (hash) =>
+        `/enroll?class=${musicClass.id}${hash}`;
 
     return (
         <div className="col-md-6 col-xl-4">
@@ -41,10 +38,10 @@ export default function ClassCard({ musicClass }) {
                     </div>
                 </div>
                 <div className="mt-auto d-flex flex-wrap gap-2">
-                    <Link className="btn btn-accent" to={enrollTo('#registration-form')}>
+                    <Link className="btn btn-accent" href={enrollHref('#registration-form')}>
                         Register
                     </Link>
-                    <Link className="btn btn-outline-dark" to={enrollTo('#demo-form')}>
+                    <Link className="btn btn-outline-dark" href={enrollHref('#demo-form')}>
                         {musicClass.demoAvailable ? 'Book Demo' : 'Join Waitlist'}
                     </Link>
                 </div>

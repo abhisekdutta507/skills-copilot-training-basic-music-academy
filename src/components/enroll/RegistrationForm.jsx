@@ -1,8 +1,9 @@
+'use client';
+
 import { useRef, useState } from 'react';
-import { classes } from '../../data/classes.js';
 import { formatPrice } from '../../utils/format.js';
 
-export default function RegistrationForm({ selectedClassId, onClassChange, onSubmit }) {
+export default function RegistrationForm({ allClasses = [], selectedClassId, onClassChange, onSubmit }) {
     const [validated, setValidated] = useState(false);
     const [message, setMessage] = useState('');
     const formRef = useRef(null);
@@ -99,7 +100,7 @@ export default function RegistrationForm({ selectedClassId, onClassChange, onSub
                             required
                         >
                             <option value="">Select a class</option>
-                            {classes.map(c => (
+                            {allClasses.map(c => (
                                 <option key={c.id} value={c.id}>
                                     {c.name} - {formatPrice(c.monthlyFee)} / month
                                 </option>

@@ -12,21 +12,23 @@ Bootstrap starter application for a music academy website. The project is intent
 
 ## Stack
 
-- React 18 (via Vite)
-- React Router DOM v6
+- Next.js 15 (App Router)
+- React 18
 - Bootstrap 5 (npm)
 - Plain CSS (custom design tokens)
 
 ## Project Structure
 
-- `index.html` - Vite entry point
-- `src/main.jsx` - React app bootstrap
-- `src/App.jsx` - router and layout shell
-- `src/data/classes.js` - seeded class data (ESM)
+- `src/app/layout.jsx` - root layout (Navbar, Footer, Bootstrap)
+- `src/app/page.jsx` - homepage (server component)
+- `src/app/classes/page.jsx` - classes catalog (client component, fetches API)
+- `src/app/enroll/page.jsx` + `EnrollContent.jsx` - enrollment forms (client component, fetches API)
+- `src/app/api/classes/route.js` - `GET /api/classes`
+- `src/app/api/classes/[id]/route.js` - `GET /api/classes/:id`
+- `src/data/classes.js` - seeded class data (ESM, used by API routes)
 - `src/utils/format.js` - INR price formatter
 - `src/hooks/useSubmissions.js` - localStorage submissions hook
-- `src/components/` - Navbar, Footer, ClassCard
-- `src/pages/` - HomePage, ClassesPage, EnrollPage
+- `src/components/` - Navbar, Footer, ClassCard, form components
 - `css/style.css` - custom styles layered on Bootstrap
 
 ## Run Locally
@@ -38,7 +40,14 @@ npm install
 npm run dev
 ```
 
-Then open `http://localhost:5173`.
+Then open `http://localhost:3000`.
+
+To build for production:
+
+```bash
+npm run build
+npm start
+```
 
 ## Seed Data Included
 
@@ -54,9 +63,9 @@ The starter includes sample programs for:
 
 ## Suggested Refactor Directions
 
-- [ ] Convert the project to Next framework
+- [x] Convert the project to Next framework
 - [x] Split rendering into reusable UI modules
-- [ ] Replace seeded data with an API
+- [x] Replace seeded data with an API
 - [ ] Add authentication and admin workflows
 - [ ] Connect forms to a real backend and database
 - [ ] Add payment integration
