@@ -9,8 +9,13 @@ export const authConfig = {
     providers: [],
     callbacks: {
         authorized({ auth, request }) {
-            const isAdmin = request.nextUrl.pathname.startsWith('/admin');
-            return isAdmin ? !!auth : true;
+            const pathname = request.nextUrl.pathname;
+            const isAdminArea = pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
+            if (!isAdminArea) return true;
+
+            // Edge middleware should only gate by sign-in state.
+            // Role authorization is enforced in admin layout and admin API handlers.
+            return !!auth;
         },
     },
 };

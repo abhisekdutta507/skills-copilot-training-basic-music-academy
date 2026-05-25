@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth.js';
 import { db } from '@/lib/db.js';
+import { forbiddenResponse, isAdminSession } from '@/lib/adminAuth.js';
 
 export async function GET(request) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!isAdminSession(session)) return forbiddenResponse();
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
