@@ -1,37 +1,37 @@
 # Basic Music Academy
 
-Bootstrap starter application for a music academy website. The project is intentionally simple so a hackathon group can use GitHub Copilot to refactor, extend, and restructure it.
+A starter application for a music academy website, built for hackathons. The project is intentionally straightforward so teams can use GitHub Copilot to refactor, extend, and restructure it with confidence.
 
-## Scope
+## Features
 
-- Browse instrument classes with monthly fees shown in INR
+- Browse instrument classes with monthly fees displayed in INR
 - Book demo classes
-- Register for paid classes
-- Filter the classes catalog
-- Store recent submissions in browser local storage
+- Enroll in paid classes
+- Filter the class catalog
+- Persist recent submissions in browser local storage
 
-## Stack
+## Tech Stack
 
 - Next.js 15 (App Router)
 - React 18
-- Bootstrap 5 (npm)
+- Bootstrap 5 (via npm)
 - Plain CSS (custom design tokens)
 
 ## Project Structure
 
-- `src/app/layout.jsx` - root layout (Navbar, Footer, Bootstrap)
-- `src/app/page.jsx` - homepage (server component)
-- `src/app/classes/page.jsx` - classes catalog (client component, fetches API)
-- `src/app/enroll/page.jsx` + `EnrollContent.jsx` - enrollment forms (client component, fetches API)
-- `src/app/api/classes/route.js` - `GET /api/classes`
-- `src/app/api/classes/[id]/route.js` - `GET /api/classes/:id`
-- `src/data/classes.js` - seeded class data (ESM, used by API routes)
-- `src/utils/format.js` - INR price formatter
-- `src/hooks/useSubmissions.js` - localStorage submissions hook
-- `src/components/` - Navbar, Footer, ClassCard, form components
-- `css/style.css` - custom styles layered on Bootstrap
+- `src/app/layout.jsx` — root layout (Navbar, Footer, Bootstrap)
+- `src/app/page.jsx` — homepage (server component)
+- `src/app/classes/page.jsx` — class catalog (client component, calls API)
+- `src/app/enroll/page.jsx` + `EnrollContent.jsx` — enrollment flow (client component, calls API)
+- `src/app/api/classes/route.js` — `GET /api/classes`
+- `src/app/api/classes/[id]/route.js` — `GET /api/classes/:id`
+- `src/data/classes.js` — seed data (ESM, consumed by API routes)
+- `src/utils/format.js` — INR currency formatter
+- `src/hooks/useSubmissions.js` — localStorage submissions hook
+- `src/components/` — Navbar, Footer, ClassCard, and form components
+- `css/style.css` — custom styles layered on top of Bootstrap
 
-## Run Locally
+## Running Locally
 
 Install dependencies and start the dev server:
 
@@ -40,18 +40,18 @@ npm install
 npm run dev
 ```
 
-Then open `http://localhost:3000`.
+Open `http://localhost:3000` in your browser.
 
-To build for production:
+To build and run for production:
 
 ```bash
 npm run build
 npm start
 ```
 
-## Seed Data Included
+## Included Seed Data
 
-The starter includes sample programs for:
+The starter ships with sample programs for:
 
 - Guitar
 - Piano
@@ -63,12 +63,12 @@ The starter includes sample programs for:
 
 ## Suggested Refactor Directions
 
-- [x] Convert the project to Next framework
-- [x] Split rendering into reusable UI modules
-- [x] Replace seeded data with an API
+- [x] Migrate to the Next.js framework
+- [x] Break rendering into reusable UI components
+- [x] Replace seed data with a real API
 - [x] Add authentication and admin workflows
-- [x] Connect forms to a real backend and database
-- [x] Add payment integration
+- [x] Connect forms to a backend and database
+- [x] Integrate payment processing
 
 ## Setup (with Auth + DB)
 
@@ -80,7 +80,7 @@ node prisma/seed.js                  # seed courses + admin user
 npm run dev
 ```
 
-Admin login at `http://localhost:3000/admin`:
+Admin panel at `http://localhost:3000/admin`:
 - **Email:** `admin@musicacademy.com`
 - **Password:** `Admin@1234`
 
@@ -88,9 +88,9 @@ Admin login at `http://localhost:3000/admin`:
 
 ## Notes
 
-- All fees are monthly prices in Indian rupees.
-- Form submissions are stored only in the local browser.
-- Enrollment checkout now includes a full debit/credit card style demo UI before activation.
-- No real payment credentials are required for the current integration; it does not contact a live gateway.
-- Demo checkout approval is always successful to keep the enrollment flow deterministic.
-- The code is designed to be easy to read before it is optimized or abstracted.
+- All fees are monthly prices in Indian rupees (INR).
+- Form submissions are stored in the browser only — nothing is sent to a server.
+- The enrollment flow includes a card-style demo checkout UI before activation.
+- No real payment credentials are needed; the integration does not contact a live payment gateway.
+- Demo checkout always succeeds to keep the enrollment flow predictable.
+- The code prioritises readability over optimisation and abstraction.
