@@ -8,6 +8,8 @@ import { demoRequestsApi } from '@/lib/api.js';
 export default function DemoForm({ allClasses = [], selectedClassId, onClassChange, onSubmit }) {
     const [validated, setValidated] = useState(false);
     const formRef = useRef(null);
+    const hasSelectedClass = allClasses.some(c => c.id === selectedClassId);
+    const demoSelectedClassId = hasSelectedClass ? selectedClassId : '';
 
     const mutation = useMutation({
         mutationFn: demoRequestsApi.submit,
@@ -101,7 +103,7 @@ export default function DemoForm({ allClasses = [], selectedClassId, onClassChan
                             className="form-select"
                             id="demoInstrument"
                             name="classId"
-                            value={selectedClassId}
+                            value={demoSelectedClassId}
                             onChange={e => onClassChange(e.target.value)}
                             required
                         >

@@ -6,6 +6,7 @@ export async function GET(request) {
     const category = searchParams.get('category');
     const level = searchParams.get('level');
     const search = searchParams.get('search');
+    const demoAvailable = searchParams.get('demoAvailable');
 
     const where = {};
 
@@ -15,6 +16,10 @@ export async function GET(request) {
 
     if (level && level !== 'all') {
         where.level = level;
+    }
+
+    if (demoAvailable === 'true' || demoAvailable === 'false') {
+        where.demoAvailable = demoAvailable === 'true';
     }
 
     let result = await db.course.findMany({ where, orderBy: { name: 'asc' } });

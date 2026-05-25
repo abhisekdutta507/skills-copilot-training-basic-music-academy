@@ -19,6 +19,11 @@ export default function EnrollContent() {
         queryFn: classesApi.getAll,
     });
 
+    const { data: demoEligibleClasses = [] } = useQuery({
+        queryKey: ['classes', 'demo-eligible'],
+        queryFn: classesApi.getDemoEligible,
+    });
+
     const [selectedClassId, setSelectedClassId] = useState(() => searchParams.get('class') ?? '');
 
     // Validate the preselected class id once classes are loaded
@@ -96,7 +101,7 @@ export default function EnrollContent() {
                         <div className="col-xl-8 order-xl-1">
                             <div className="row g-4">
                                 <DemoForm
-                                    allClasses={allClasses}
+                                    allClasses={demoEligibleClasses}
                                     selectedClassId={selectedClassId}
                                     onClassChange={setSelectedClassId}
                                     onSubmit={addSubmission}
