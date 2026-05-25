@@ -8,6 +8,15 @@ export default function SubmissionList({ submissions, allClasses = [] }) {
     return recent.map((submission, index) => {
         const cls = allClasses.find(c => c.id === submission.classId);
         const className = cls ? cls.name : 'Unknown class';
+        const paymentLabel = submission.paymentStatus
+            ? submission.paymentStatus === 'PAID'
+                ? 'Payment completed'
+                : submission.paymentStatus === 'FAILED'
+                    ? 'Payment failed'
+                    : submission.paymentStatus === 'PENDING'
+                        ? 'Payment pending'
+                        : submission.paymentStatus
+            : null;
 
         return (
             <div key={index} className="submission-item">
@@ -15,6 +24,12 @@ export default function SubmissionList({ submissions, allClasses = [] }) {
                 <small>
                     {submission.type === 'demo' ? 'Demo request' : 'Registration'} for {className}
                 </small>
+                {paymentLabel && (
+                    <small>
+                        {paymentLabel}
+                        {submission.paymentReference ? ` (${submission.paymentReference})` : ''}
+                    </small>
+                )}
             </div>
         );
     });

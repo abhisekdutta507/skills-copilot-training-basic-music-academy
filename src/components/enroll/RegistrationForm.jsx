@@ -4,20 +4,57 @@ import { useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { formatPrice } from '../../utils/format.js';
 import { enrollmentsApi } from '@/lib/api.js';
+import PaymentDemoPanel from '@/components/enroll/PaymentDemoPanel.jsx';
 
 export default function RegistrationForm({ allClasses = [], selectedClassId, onClassChange, onSubmit }) {
     const [validated, setValidated] = useState(false);
+    const [checkoutEnrollment, setCheckoutEnrollment] = useState(null);
+    const [paymentNotice, setPaymentNotice] = useState(null);
     const formRef = useRef(null);
 
-    const mutation = useMutation({
+    const registrationMutation = useMutation({
         mutationFn: enrollmentsApi.submit,
-        onSuccess: (_, variables) => {
-            onSubmit('registration', variables);
+        onSuccess: (enrollment) => {
             setValidated(false);
-            formRef.current?.reset();
-            onClassChange(variables.classId);
+            setPaymentNotice({
+                tone: 'info',
+                message: 'Registration saved. Complete the demo payment below to activate the enrollment.',
+            });
+            setCheckoutEnrollment(enrollment);
         },
     });
+
+    const paymentMutation = useMutation({
+        mutationFn: ({ id, outcome }) => enrollmentsApi.completePayment(id, { outcome }),
+        onSuccess: (enrollment) => {
+            setCheckoutEnrollment(enrollment);
+            onSubmit('registration', {
+                studentName: enrollment.studentName,
+                classId: enrollment.courseId,
+                paymentStatus: enrollment.paymentStatus,
+                paymentReference: enrollment.paymentReference,
+            });
+
+            if (enrollment.paymentStatus === 'PAID') {
+                setPaymentNotice({
+                    tone: 'success',
+                    message: 'Demo payment completed. Enrollment is now active.',
+                });
+                formRef.current?.reset();
+                onClassChange(enrollment.courseId);
+                setCheckoutEnrollment(null);
+                return;
+            }
+
+            setPaymentNotice({
+                tone: 'danger',
+                message: enrollment.paymentFailureReason || 'Demo payment failed. Retry whenever you are ready.',
+            });
+        },
+    });
+
+    const hasOpenCheckout = Boolean(checkoutEnrollment);
+    const isFormLocked = hasOpenCheckout || registrationMutation.isPending || paymentMutation.isPending;
 
     function handleSubmit(event) {
         event.preventDefault();
@@ -25,8 +62,10 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
             setValidated(true);
             return;
         }
+
+        setPaymentNotice(null);
         const raw = Object.fromEntries(new FormData(formRef.current));
-        mutation.mutate({
+        registrationMutation.mutate({
             studentName: raw.studentName,
             guardianName: raw.guardianName,
             email: raw.email,
@@ -34,6 +73,11 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
             classId: raw.classId,
             startDate: raw.startMonth || undefined,
         });
+    }
+
+    function handlePaymentOutcome(outcome) {
+        if (!checkoutEnrollment || paymentMutation.isPending) return;
+        paymentMutation.mutate({ id: checkoutEnrollment.id, outcome });
     }
 
     return (
@@ -51,10 +95,11 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
                 </div>
                 <form
                     ref={formRef}
-                    className={`row g-3 needs-validation${validated ? ' was-validated' : ''}`}
+                    className={`needs-validation${validated ? ' was-validated' : ''}`}
                     noValidate
                     onSubmit={handleSubmit}
                 >
+                    <fieldset className="row g-3 border-0 p-0 m-0" disabled={isFormLocked}>
                     <div className="col-md-6">
                         <label className="form-label" htmlFor="registerName">Student name</label>
                         <input
@@ -181,22 +226,38 @@ export default function RegistrationForm({ allClasses = [], selectedClassId, onC
                         ></textarea>
                     </div>
                     <div className="col-12 d-flex flex-wrap gap-3 align-items-center">
-                        <button className="btn btn-dark" type="submit" disabled={mutation.isPending}>
-                            {mutation.isPending ? (
+                        <button className="btn btn-dark" type="submit" disabled={isFormLocked}>
+                            {registrationMutation.isPending ? (
                                 <><span className="spinner-border spinner-border-sm me-2" />Submitting…</>
                             ) : (
-                                'Complete Registration'
+                                hasOpenCheckout ? 'Registration Saved' : 'Continue to Payment'
                             )}
                         </button>
-                        {mutation.isSuccess && (
-                            <div className="form-message text-success">Registration submitted successfully!</div>
+                        {paymentNotice && (
+                            <div className={`form-message text-${paymentNotice.tone}`}>
+                                {paymentNotice.message}
+                            </div>
                         )}
-                        {mutation.isError && (
+                        {registrationMutation.isError && (
                             <div className="form-message text-danger">
-                                {mutation.error?.response?.data?.error || 'Submission failed. Please try again.'}
+                                {registrationMutation.error?.response?.data?.error || 'Submission failed. Please try again.'}
+                            </div>
+                        )}
+                        {paymentMutation.isError && (
+                            <div className="form-message text-danger">
+                                {paymentMutation.error?.response?.data?.error || 'Payment simulation failed. Please try again.'}
                             </div>
                         )}
                     </div>
+                    </fieldset>
+
+                    {checkoutEnrollment && (
+                        <PaymentDemoPanel
+                            enrollment={checkoutEnrollment}
+                            isProcessing={paymentMutation.isPending}
+                            onOutcome={handlePaymentOutcome}
+                        />
+                    )}
                 </form>
             </div>
         </div>

@@ -5,10 +5,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminEnrollmentsApi } from '@/lib/api.js';
 import { formatPrice } from '@/utils/format.js';
 
-const STATUS_OPTIONS = ['all', 'ACTIVE', 'REFUNDED', 'CANCELLED'];
+const STATUS_OPTIONS = ['all', 'PENDING', 'ACTIVE', 'REFUNDED', 'CANCELLED'];
+const PAYMENT_STATUS_OPTIONS = ['all', 'PENDING', 'FAILED', 'PAID', 'REFUNDED'];
 
 function StatusBadge({ status }) {
     const map = {
+        PENDING: 'admin-status-pending',
         ACTIVE: 'admin-status-active',
         REFUNDED: 'admin-status-refunded',
         CANCELLED: 'admin-status-cancelled',
@@ -16,14 +18,28 @@ function StatusBadge({ status }) {
     return <span className={`admin-status-chip ${map[status] ?? 'admin-status-default'}`}>{status}</span>;
 }
 
+function PaymentStatusBadge({ status }) {
+    const map = {
+        PENDING: 'admin-status-pending',
+        FAILED: 'admin-status-failed',
+        PAID: 'admin-status-paid',
+        REFUNDED: 'admin-status-refunded',
+    };
+    return <span className={`admin-status-chip ${map[status] ?? 'admin-status-default'}`}>{status}</span>;
+}
+
 export default function AdminEnrollmentsPage() {
     const [statusFilter, setStatusFilter] = useState('all');
+    const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
     const [pendingRefund, setPendingRefund] = useState(null);
     const queryClient = useQueryClient();
 
     const { data: enrollments = [], isLoading } = useQuery({
-        queryKey: ['admin', 'enrollments', statusFilter],
-        queryFn: () => adminEnrollmentsApi.getAll(statusFilter !== 'all' ? { status: statusFilter } : {}),
+        queryKey: ['admin', 'enrollments', statusFilter, paymentStatusFilter],
+        queryFn: () => adminEnrollmentsApi.getAll({
+            ...(statusFilter !== 'all' ? { status: statusFilter } : {}),
+            ...(paymentStatusFilter !== 'all' ? { paymentStatus: paymentStatusFilter } : {}),
+        }),
     });
 
     const refundMutation = useMutation({
@@ -77,18 +93,33 @@ export default function AdminEnrollmentsPage() {
                     <h1 className="h3 mb-1">Enrollments</h1>
                     <p className="text-body-secondary mb-0">{enrollments.length} record(s)</p>
                 </div>
-                <div className="admin-filter-bar">
-                    <label className="form-label text-nowrap" htmlFor="enrollment-status-filter">Filter by status</label>
-                    <select
-                        className="form-select form-select-sm"
-                        id="enrollment-status-filter"
-                        value={statusFilter}
-                        onChange={e => setStatusFilter(e.target.value)}
-                    >
-                        {STATUS_OPTIONS.map(s => (
-                            <option key={s} value={s}>{s === 'all' ? 'All' : s}</option>
-                        ))}
-                    </select>
+                <div className="d-flex flex-wrap gap-2">
+                    <div className="admin-filter-bar">
+                        <label className="form-label text-nowrap" htmlFor="enrollment-status-filter">Enrollment</label>
+                        <select
+                            className="form-select form-select-sm"
+                            id="enrollment-status-filter"
+                            value={statusFilter}
+                            onChange={e => setStatusFilter(e.target.value)}
+                        >
+                            {STATUS_OPTIONS.map(s => (
+                                <option key={s} value={s}>{s === 'all' ? 'All' : s}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="admin-filter-bar">
+                        <label className="form-label text-nowrap" htmlFor="enrollment-payment-status-filter">Payment</label>
+                        <select
+                            className="form-select form-select-sm"
+                            id="enrollment-payment-status-filter"
+                            value={paymentStatusFilter}
+                            onChange={e => setPaymentStatusFilter(e.target.value)}
+                        >
+                            {PAYMENT_STATUS_OPTIONS.map(s => (
+                                <option key={s} value={s}>{s === 'all' ? 'All' : s}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -115,7 +146,9 @@ export default function AdminEnrollmentsPage() {
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Course</th>
-                                    <th>Status</th>
+                                    <th>Fee</th>
+                                    <th>Enrollment</th>
+                                    <th>Payment</th>
                                     <th>Date</th>
                                     <th></th>
                                 </tr>
@@ -128,12 +161,29 @@ export default function AdminEnrollmentsPage() {
                                         <td data-label="Email">{e.email}</td>
                                         <td data-label="Phone">{e.phone}</td>
                                         <td data-label="Course">{e.course?.name}</td>
-                                        <td data-label="Status"><StatusBadge status={e.status} /></td>
+                                        <td data-label="Fee">{formatPrice(e.paymentAmount ?? e.course?.monthlyFee ?? 0)}</td>
+                                        <td data-label="Enrollment"><StatusBadge status={e.status} /></td>
+                                        <td data-label="Payment">
+                                            <div className="d-flex flex-column gap-1 align-items-start">
+                                                <PaymentStatusBadge status={e.paymentStatus} />
+                                                {e.paymentReference && (
+                                                    <span className="admin-refund-date">{e.paymentReference}</span>
+                                                )}
+                                                {e.paidAt && (
+                                                    <span className="admin-refund-date">
+                                                        Paid {new Date(e.paidAt).toLocaleDateString('en-IN')}
+                                                    </span>
+                                                )}
+                                                {e.paymentFailureReason && (
+                                                    <span className="text-body-secondary small">{e.paymentFailureReason}</span>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td className="text-body-secondary small" data-label="Date">
                                             {new Date(e.createdAt).toLocaleDateString('en-IN')}
                                         </td>
                                         <td data-label="Actions">
-                                            {e.status === 'ACTIVE' && (
+                                            {e.status === 'ACTIVE' && e.paymentStatus === 'PAID' && (
                                                 <div className="admin-row-actions">
                                                     <button
                                                         className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-amber"

@@ -68,7 +68,7 @@ The starter includes sample programs for:
 - [x] Replace seeded data with an API
 - [x] Add authentication and admin workflows
 - [x] Connect forms to a real backend and database
-- [ ] Add payment integration
+- [x] Add payment integration
 
 ## Setup (with Auth + DB)
 
@@ -90,4 +90,6 @@ Admin login at `http://localhost:3000/admin`:
 
 - All fees are monthly prices in Indian rupees.
 - Form submissions are stored only in the local browser.
+- Enrollment checkout now includes a demo-only in-app payment simulation before activation.
+- No real payment credentials are required for the current integration; it does not contact a live gateway.
 - The code is designed to be easy to read before it is optimized or abstracted.

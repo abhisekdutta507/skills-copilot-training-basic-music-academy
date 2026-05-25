@@ -19,6 +19,8 @@ export function useSubmissions() {
             type,
             studentName: formData.studentName,
             classId: formData.classId,
+            paymentStatus: formData.paymentStatus,
+            paymentReference: formData.paymentReference,
             timestamp: new Date().toISOString(),
         };
         setSubmissions(prev => {

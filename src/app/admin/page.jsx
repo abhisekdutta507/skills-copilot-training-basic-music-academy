@@ -21,12 +21,15 @@ export default function AdminDashboard() {
         queryFn: () => adminDemoRequestsApi.getAll(),
     });
 
-    const activeEnrollments = enrollments.filter(e => e.status === 'ACTIVE').length;
+    const activeEnrollments = enrollments.filter(e => e.status === 'ACTIVE' && e.paymentStatus === 'PAID').length;
     const refundedEnrollments = enrollments.filter(e => e.status === 'REFUNDED').length;
+    const pendingPayments = enrollments.filter(
+        e => e.status === 'PENDING' || e.paymentStatus === 'PENDING' || e.paymentStatus === 'FAILED'
+    ).length;
     const pendingDemos = demoRequests.filter(d => d.status === 'PENDING').length;
     const monthlyRevenue = enrollments
-        .filter(e => e.status === 'ACTIVE')
-        .reduce((sum, e) => sum + (e.course?.monthlyFee ?? 0), 0);
+        .filter(e => e.status === 'ACTIVE' && e.paymentStatus === 'PAID')
+        .reduce((sum, e) => sum + (e.paymentAmount ?? e.course?.monthlyFee ?? 0), 0);
 
     const stats = [
         {
@@ -54,11 +57,11 @@ export default function AdminDashboard() {
             tone: 'amber',
         },
         {
-            label: 'Refunds Issued',
-            value: refundedEnrollments,
-            helper: 'Settled and processed requests',
-            icon: '💰',
-            href: '/admin/enrollments?status=REFUNDED',
+            label: 'Pending Payments',
+            value: pendingPayments,
+            helper: `${refundedEnrollments} refunds issued so far`,
+            icon: '💳',
+            href: '/admin/enrollments?status=PENDING',
             tone: 'rose',
         },
     ];
@@ -126,6 +129,7 @@ export default function AdminDashboard() {
                                                 <th>Course</th>
                                                 <th>Fee</th>
                                                 <th>Status</th>
+                                                <th>Payment</th>
                                                 <th>Date</th>
                                             </tr>
                                         </thead>
@@ -139,6 +143,9 @@ export default function AdminDashboard() {
                                                     <td data-label="Fee">{formatPrice(e.course?.monthlyFee ?? 0)}</td>
                                                     <td data-label="Status">
                                                         <StatusBadge status={e.status} />
+                                                    </td>
+                                                    <td data-label="Payment">
+                                                        <PaymentStatusBadge status={e.paymentStatus} />
                                                     </td>
                                                     <td className="text-body-secondary small" data-label="Date">
                                                         {new Date(e.createdAt).toLocaleDateString('en-IN')}
@@ -166,6 +173,9 @@ export default function AdminDashboard() {
                             <Link href="/admin/enrollments?status=ACTIVE" className="btn admin-action-btn admin-action-btn-emerald">
                                 View Active Enrollments ({activeEnrollments})
                             </Link>
+                            <Link href="/admin/enrollments?status=PENDING" className="btn admin-action-btn admin-action-btn-cool">
+                                View Pending Payments ({pendingPayments})
+                            </Link>
                             <Link href="/admin/enrollments?status=REFUNDED" className="btn admin-action-btn admin-action-btn-danger">
                                 View Refunds ({refundedEnrollments})
                             </Link>
@@ -184,6 +194,20 @@ function StatusBadge({ status }) {
         CANCELLED: 'admin-status-cancelled',
         PENDING: 'admin-status-pending',
         CONFIRMED: 'admin-status-confirmed',
+    };
+    return (
+        <span className={`admin-status-chip ${map[status] ?? 'admin-status-default'}`}>
+            {status}
+        </span>
+    );
+}
+
+function PaymentStatusBadge({ status }) {
+    const map = {
+        PENDING: 'admin-status-pending',
+        FAILED: 'admin-status-failed',
+        PAID: 'admin-status-paid',
+        REFUNDED: 'admin-status-refunded',
     };
     return (
         <span className={`admin-status-chip ${map[status] ?? 'admin-status-default'}`}>

@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth.js';
 import { db } from '@/lib/db.js';
-import { forbiddenResponse, isAdminSession } from '@/lib/adminAuth.js';
+import { isAdminSession } from '@/lib/adminAuth.js';
 import { courseSchema } from '@/schemas/course.js';
 
 export async function GET() {
     const session = await auth();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAdminSession(session)) return forbiddenResponse();
+    if (!isAdminSession(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const courses = await db.course.findMany({
         orderBy: { createdAt: 'asc' },
@@ -21,7 +21,7 @@ export async function GET() {
 export async function POST(request) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAdminSession(session)) return forbiddenResponse();
+    if (!isAdminSession(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     let body;
     try {

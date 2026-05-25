@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth.js';
 import { db } from '@/lib/db.js';
-import { forbiddenResponse, isAdminSession } from '@/lib/adminAuth.js';
+import { isAdminSession } from '@/lib/adminAuth.js';
 import { courseUpdateSchema } from '@/schemas/course.js';
 
 export async function GET(_req, { params }) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAdminSession(session)) return forbiddenResponse();
+    if (!isAdminSession(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
     const course = await db.course.findUnique({
@@ -23,7 +23,7 @@ export async function GET(_req, { params }) {
 export async function PUT(request, { params }) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAdminSession(session)) return forbiddenResponse();
+    if (!isAdminSession(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
     let body;
@@ -48,7 +48,7 @@ export async function PUT(request, { params }) {
 export async function DELETE(_req, { params }) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAdminSession(session)) return forbiddenResponse();
+    if (!isAdminSession(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
     const existing = await db.course.findUnique({ where: { id } });

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/auth.js';
 import { db } from '@/lib/db.js';
-import { forbiddenResponse, isAdminSession } from '@/lib/adminAuth.js';
+import { isAdminSession } from '@/lib/adminAuth.js';
 
 const statusSchema = z.object({
     status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']),
@@ -11,7 +11,7 @@ const statusSchema = z.object({
 export async function PATCH(request, { params }) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAdminSession(session)) return forbiddenResponse();
+    if (!isAdminSession(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
     let body;

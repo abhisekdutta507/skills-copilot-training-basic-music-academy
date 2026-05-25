@@ -38,7 +38,7 @@ model Course {
   demoRequests  DemoRequest[]
 }
 
-// Student registrations (ACTIVE | REFUNDED | CANCELLED)
+// Student registrations (PENDING | ACTIVE | REFUNDED | CANCELLED)
 model Enrollment {
   id           String    @id @default(cuid())
   studentName  String
@@ -48,7 +48,12 @@ model Enrollment {
   courseId     String
   course       Course    @relation(fields: [courseId], references: [id])
   startDate    String?
-  status       String    @default("ACTIVE")
+  status       String    @default("PENDING")
+  paymentStatus String   @default("PENDING")
+  paymentReference String?
+  paymentAmount Int?
+  paymentFailureReason String?
+  paidAt       DateTime?
   refundedAt   DateTime?
   createdAt    DateTime  @default(now())
 }

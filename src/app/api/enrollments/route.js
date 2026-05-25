@@ -23,8 +23,14 @@ export async function POST(request) {
     }
 
     const enrollment = await db.enrollment.create({
-        data: { ...rest, courseId: classId },
-        include: { course: { select: { name: true } } },
+        data: {
+            ...rest,
+            courseId: classId,
+            status: 'PENDING',
+            paymentStatus: 'PENDING',
+            paymentAmount: course.monthlyFee,
+        },
+        include: { course: { select: { id: true, name: true, monthlyFee: true } } },
     });
 
     return NextResponse.json(enrollment, { status: 201 });

@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth.js';
 import { db } from '@/lib/db.js';
-import { forbiddenResponse, isAdminSession } from '@/lib/adminAuth.js';
+import { isAdminSession } from '@/lib/adminAuth.js';
 
 export async function POST(_req, { params }) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAdminSession(session)) return forbiddenResponse();
+    if (!isAdminSession(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
     const enrollment = await db.enrollment.findUnique({ where: { id } });
@@ -18,11 +18,22 @@ export async function POST(_req, { params }) {
             { status: 409 }
         );
     }
+    if (enrollment.paymentStatus !== 'PAID') {
+        return NextResponse.json(
+            { error: `Only paid enrollments can be refunded. Current payment status: ${enrollment.paymentStatus}` },
+            { status: 409 }
+        );
+    }
 
     const updated = await db.enrollment.update({
         where: { id },
-        data: { status: 'REFUNDED', refundedAt: new Date() },
-        include: { course: { select: { name: true } } },
+        data: {
+            status: 'REFUNDED',
+            paymentStatus: 'REFUNDED',
+            refundedAt: new Date(),
+            paymentFailureReason: null,
+        },
+        include: { course: { select: { id: true, name: true, monthlyFee: true } } },
     });
     return NextResponse.json(updated);
 }
