@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Music Academy</title>
+    <meta name="description" content="Explore instrument classes, compare monthly fees in INR, book demo lessons, and register for music academy programs.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+    <nav class="navbar navbar-expand-lg academy-navbar sticky-top">
+        <div class="container py-2">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <span class="brand-mark">B</span>
+                <span>
+                    <span class="brand-title">Basic Music Academy</span>
+                    <span class="brand-subtitle d-block">Learn. Perform. Grow.</span>
+                </span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#academyNav" aria-controls="academyNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="academyNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="pages/classes.html">Classes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="pages/enroll.html">Enroll</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero-section overflow-hidden">
+            <div class="container position-relative">
+                <div class="row align-items-center gy-5">
+                    <div class="col-lg-6">
+                        <span class="eyebrow">Music classes for every stage</span>
+                        <h1 class="display-4 hero-title mt-3">Build confidence through weekly instrument training.</h1>
+                        <p class="hero-copy mt-4">Discover structured classes for guitar, piano, violin, drums, flute, keyboard, and vocal training. Compare monthly fees in Indian rupees, book a demo lesson, and join a batch that fits your schedule.</p>
+                        <div class="d-flex flex-wrap gap-3 mt-4">
+                            <a class="btn btn-accent btn-lg" href="pages/classes.html">Explore Classes</a>
+                            <a class="btn btn-outline-dark btn-lg" href="pages/enroll.html#demo-form">Book Demo</a>
+                        </div>
+                        <div class="hero-metrics row row-cols-2 row-cols-md-4 g-3 mt-4">
+                            <div class="col">
+                                <div class="metric-card">
+                                    <strong>7</strong>
+                                    <span>Instrument tracks</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="metric-card">
+                                    <strong>INR 1,800+</strong>
+                                    <span>Monthly plans</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="metric-card">
+                                    <strong>Weekend</strong>
+                                    <span>Flexible batches</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="metric-card">
+                                    <strong>Demo</strong>
+                                    <span>Available now</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="hero-panel shadow-lg">
+                            <div class="hero-panel-header d-flex justify-content-between align-items-center">
+                                <span class="pill-label">Popular this month</span>
+                                <span class="text-body-secondary">Beginner friendly</span>
+                            </div>
+                            <div class="featured-class-card mt-4">
+                                <p class="featured-kicker">Featured program</p>
+                                <h2>Contemporary Guitar</h2>
+                                <p>Technique, rhythm reading, and stage-ready performance practice across weekday and weekend batches.</p>
+                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                    <span class="chip">3 sessions / week</span>
+                                    <span class="chip">INR 2,400 / month</span>
+                                    <span class="chip">Age 10+</span>
+                                </div>
+                                <a class="btn btn-dark" href="pages/enroll.html#registration-form">Register for Guitar</a>
+                            </div>
+                            <div class="mini-timetable row g-3 mt-1">
+                                <div class="col-sm-6">
+                                    <div class="schedule-card">
+                                        <span>Tue / Thu</span>
+                                        <strong>5:00 PM - 6:00 PM</strong>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="schedule-card">
+                                        <span>Sat</span>
+                                        <strong>11:00 AM - 1:00 PM</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5">
+            <div class="container">
+                <div class="section-heading d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+                    <div>
+                        <span class="eyebrow">Instrument classes</span>
+                        <h2 class="section-title mt-2">Browse featured programs</h2>
+                    </div>
+                    <a class="link-dark fw-semibold" href="pages/classes.html">View full catalog</a>
+                </div>
+                <div class="row g-4" data-featured-classes></div>
+            </div>
+        </section>
+
+        <section class="py-5 academy-band">
+            <div class="container">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-5">
+                        <span class="eyebrow">Why families choose us</span>
+                        <h2 class="section-title mt-2">A starter app that already shows useful patterns.</h2>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="value-card h-100">
+                                    <h3>Simple pricing</h3>
+                                    <p>Monthly fees stay visible across cards, detail blocks, and forms in INR.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="value-card h-100">
+                                    <h3>Demo first</h3>
+                                    <p>Students can request a demo class before committing to a full batch.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="value-card h-100">
+                                    <h3>Refactor ready</h3>
+                                    <p>Data, rendering, and form handling are separated so participants can evolve the codebase quickly.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5">
+            <div class="container">
+                <div class="cta-panel text-center text-lg-start d-lg-flex align-items-center justify-content-between gap-4">
+                    <div>
+                        <span class="eyebrow">Ready to join a batch?</span>
+                        <h2 class="section-title mt-2 mb-2">Reserve a demo lesson or complete your registration.</h2>
+                        <p class="mb-0 text-body-secondary">Use the starter flow now, then let your hackathon team extend it with APIs, dashboards, and richer workflows.</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start mt-4 mt-lg-0">
+                        <a class="btn btn-accent btn-lg" href="pages/enroll.html#demo-form">Book Demo</a>
+                        <a class="btn btn-dark btn-lg" href="pages/enroll.html#registration-form">Register Now</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="academy-footer py-4">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <p class="mb-0">Basic Music Academy starter for hackathon refactoring exercises.</p>
+            <p class="mb-0 text-body-secondary">Bootstrap, plain JavaScript, seeded class data.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
