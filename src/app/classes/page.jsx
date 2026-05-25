@@ -1,33 +1,26 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { classesApi } from '../../lib/api';
 import ClassCard from '../../components/ClassCard';
 import CatalogFilters from '../../components/classes/CatalogFilters';
 
 export default function ClassesPage() {
-    const { data: allClasses = [] } = useQuery({
-        queryKey: ['classes'],
-        queryFn: classesApi.getAll,
-    });
-
     const [category, setCategory] = useState('all');
     const [level, setLevel] = useState('all');
     const [search, setSearch] = useState('');
 
-    const categories = [...new Set(allClasses.map(c => c.category))];
+    const { data: filtered = [] } = useQuery({
+        queryKey: ['classes', { category, level, search }],
+        queryFn: () => classesApi.getFiltered({ category, level, search }),
+    });
 
-    const filtered = useMemo(() => {
-        return allClasses.filter(c => {
-            const matchesCategory = category === 'all' || c.category === category;
-            const matchesLevel = level === 'all' || c.level === level;
-            const haystack = `${c.name} ${c.category} ${c.blurb} ${c.instructor}`.toLowerCase();
-            const matchesSearch =
-                search.trim() === '' || haystack.includes(search.trim().toLowerCase());
-            return matchesCategory && matchesLevel && matchesSearch;
-        });
-    }, [allClasses, category, level, search]);
+    const allCategoriesRef = useRef(null);
+    if (allCategoriesRef.current === null && filtered.length > 0) {
+        allCategoriesRef.current = [...new Set(filtered.map(c => c.category))];
+    }
+    const categories = allCategoriesRef.current ?? [];
 
     return (
         <>
@@ -76,7 +69,7 @@ export default function ClassesPage() {
                         ))}
                     </div>
 
-                    {filtered.length === 0 && allClasses.length > 0 && (
+                    {filtered.length === 0 && (
                         <div className="empty-state mt-4">
                             <h2 className="h4">No classes match your filters.</h2>
                             <p className="mb-0 text-body-secondary">
