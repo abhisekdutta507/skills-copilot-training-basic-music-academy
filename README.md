@@ -66,9 +66,25 @@ The starter includes sample programs for:
 - [x] Convert the project to Next framework
 - [x] Split rendering into reusable UI modules
 - [x] Replace seeded data with an API
-- [ ] Add authentication and admin workflows
-- [ ] Connect forms to a real backend and database
+- [x] Add authentication and admin workflows
+- [x] Connect forms to a real backend and database
 - [ ] Add payment integration
+
+## Setup (with Auth + DB)
+
+```bash
+npm install
+echo 'DATABASE_URL="file:./prisma/dev.db"' > .env.local
+npx prisma migrate dev --name init   # create SQLite DB
+node prisma/seed.js                  # seed courses + admin user
+npm run dev
+```
+
+Admin login at `http://localhost:3000/admin`:
+- **Email:** `admin@musicacademy.com`
+- **Password:** `Admin@1234`
+
+> Change the admin password before deploying to production.
 
 ## Notes
 
