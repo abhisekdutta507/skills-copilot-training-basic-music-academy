@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminEnrollmentsApi } from '@/lib/api.js';
 import { formatPrice } from '@/utils/format.js';
@@ -18,6 +18,7 @@ function StatusBadge({ status }) {
 
 export default function AdminEnrollmentsPage() {
     const [statusFilter, setStatusFilter] = useState('all');
+    const [pendingRefund, setPendingRefund] = useState(null);
     const queryClient = useQueryClient();
 
     const { data: enrollments = [], isLoading } = useQuery({
@@ -30,8 +31,42 @@ export default function AdminEnrollmentsPage() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'enrollments'] }),
     });
 
-    function handleRefund(id, studentName) {
-        if (!confirm(`Issue refund for ${studentName}? This will mark the enrollment as REFUNDED.`)) return;
+    useEffect(() => {
+        if (!pendingRefund) return undefined;
+
+        function handleEscape(event) {
+            if (event.key === 'Escape' && !refundMutation.isPending) {
+                setPendingRefund(null);
+            }
+        }
+
+        document.body.classList.add('admin-modal-open');
+        window.addEventListener('keydown', handleEscape);
+
+        return () => {
+            document.body.classList.remove('admin-modal-open');
+            window.removeEventListener('keydown', handleEscape);
+        };
+    }, [pendingRefund, refundMutation.isPending]);
+
+    function openRefundDialog(enrollment) {
+        setPendingRefund({
+            id: enrollment.id,
+            studentName: enrollment.studentName,
+            courseName: enrollment.course?.name,
+        });
+    }
+
+    function closeRefundDialog() {
+        if (refundMutation.isPending) return;
+        setPendingRefund(null);
+    }
+
+    function confirmRefund() {
+        if (!pendingRefund || refundMutation.isPending) return;
+
+        const { id } = pendingRefund;
+        setPendingRefund(null);
         refundMutation.mutate(id);
     }
 
@@ -102,7 +137,7 @@ export default function AdminEnrollmentsPage() {
                                                 <div className="admin-row-actions">
                                                     <button
                                                         className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-amber"
-                                                        onClick={() => handleRefund(e.id, e.studentName)}
+                                                        onClick={() => openRefundDialog(e)}
                                                         disabled={refundMutation.isPending}
                                                     >
                                                         Refund
@@ -119,6 +154,51 @@ export default function AdminEnrollmentsPage() {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            )}
+
+            {pendingRefund && (
+                <div className="admin-confirm-backdrop" role="presentation" onClick={closeRefundDialog}>
+                    <div
+                        className="admin-confirm-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="enrollment-refund-confirm-title"
+                        aria-describedby="enrollment-refund-confirm-copy"
+                        onClick={event => event.stopPropagation()}
+                    >
+                        <span className="admin-confirm-kicker admin-confirm-kicker-cancel">Process Refund</span>
+                        <h2 className="admin-confirm-title" id="enrollment-refund-confirm-title">
+                            Issue refund for this enrollment?
+                        </h2>
+                        <p className="admin-confirm-copy" id="enrollment-refund-confirm-copy">
+                            This will mark <strong>{pendingRefund.studentName}</strong>
+                            {pendingRefund.courseName ? (
+                                <>
+                                    {' '}in <strong>{pendingRefund.courseName}</strong>
+                                </>
+                            ) : null}
+                            {' '}as <strong>REFUNDED</strong>.
+                        </p>
+                        <div className="admin-confirm-actions">
+                            <button
+                                type="button"
+                                className="btn admin-action-btn admin-action-btn-ghost"
+                                onClick={closeRefundDialog}
+                                disabled={refundMutation.isPending}
+                            >
+                                Keep Active
+                            </button>
+                            <button
+                                type="button"
+                                className="btn admin-action-btn admin-action-btn-amber"
+                                onClick={confirmRefund}
+                                disabled={refundMutation.isPending}
+                            >
+                                {refundMutation.isPending ? 'Saving...' : 'Yes, Refund'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

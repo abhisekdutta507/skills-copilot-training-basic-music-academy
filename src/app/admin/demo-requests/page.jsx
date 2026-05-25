@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminDemoRequestsApi } from '@/lib/api.js';
 
@@ -17,6 +17,7 @@ function StatusBadge({ status }) {
 
 export default function AdminDemoRequestsPage() {
     const [statusFilter, setStatusFilter] = useState('all');
+    const [pendingConfirmation, setPendingConfirmation] = useState(null);
     const queryClient = useQueryClient();
 
     const { data: demoRequests = [], isLoading } = useQuery({
@@ -29,11 +30,47 @@ export default function AdminDemoRequestsPage() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'demo-requests'] }),
     });
 
-    function handleStatusChange(id, status) {
-        const label = status === 'CONFIRMED' ? 'confirm' : 'cancel';
-        if (!confirm(`Are you sure you want to ${label} this demo request?`)) return;
+    useEffect(() => {
+        if (!pendingConfirmation) return undefined;
+
+        function handleEscape(event) {
+            if (event.key === 'Escape' && !updateStatusMutation.isPending) {
+                setPendingConfirmation(null);
+            }
+        }
+
+        document.body.classList.add('admin-modal-open');
+        window.addEventListener('keydown', handleEscape);
+
+        return () => {
+            document.body.classList.remove('admin-modal-open');
+            window.removeEventListener('keydown', handleEscape);
+        };
+    }, [pendingConfirmation, updateStatusMutation.isPending]);
+
+    function openStatusDialog(request, status) {
+        setPendingConfirmation({
+            id: request.id,
+            status,
+            studentName: request.studentName,
+            courseName: request.course?.name,
+        });
+    }
+
+    function closeStatusDialog() {
+        if (updateStatusMutation.isPending) return;
+        setPendingConfirmation(null);
+    }
+
+    function confirmStatusChange() {
+        if (!pendingConfirmation || updateStatusMutation.isPending) return;
+
+        const { id, status } = pendingConfirmation;
+        setPendingConfirmation(null);
         updateStatusMutation.mutate({ id, status });
     }
+
+    const isConfirmAction = pendingConfirmation?.status === 'CONFIRMED';
 
     return (
         <div className="admin-page p-3 p-md-4 p-xl-5">
@@ -104,14 +141,14 @@ export default function AdminDemoRequestsPage() {
                                                 <div className="admin-row-actions">
                                                     <button
                                                         className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-emerald"
-                                                        onClick={() => handleStatusChange(d.id, 'CONFIRMED')}
+                                                        onClick={() => openStatusDialog(d, 'CONFIRMED')}
                                                         disabled={updateStatusMutation.isPending}
                                                     >
                                                         Confirm
                                                     </button>
                                                     <button
                                                         className="btn btn-sm admin-action-btn admin-action-btn-sm admin-action-btn-danger"
-                                                        onClick={() => handleStatusChange(d.id, 'CANCELLED')}
+                                                        onClick={() => openStatusDialog(d, 'CANCELLED')}
                                                         disabled={updateStatusMutation.isPending}
                                                     >
                                                         Cancel
@@ -123,6 +160,59 @@ export default function AdminDemoRequestsPage() {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            )}
+
+            {pendingConfirmation && (
+                <div className="admin-confirm-backdrop" role="presentation" onClick={closeStatusDialog}>
+                    <div
+                        className="admin-confirm-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="demo-request-confirm-title"
+                        aria-describedby="demo-request-confirm-copy"
+                        onClick={event => event.stopPropagation()}
+                    >
+                        <span className={`admin-confirm-kicker ${isConfirmAction ? 'admin-confirm-kicker-confirm' : 'admin-confirm-kicker-cancel'}`}>
+                            {isConfirmAction ? 'Finalize Demo Slot' : 'Cancel Demo Slot'}
+                        </span>
+                        <h2 className="admin-confirm-title" id="demo-request-confirm-title">
+                            {isConfirmAction ? 'Confirm this demo request?' : 'Cancel this demo request?'}
+                        </h2>
+                        <p className="admin-confirm-copy" id="demo-request-confirm-copy">
+                            {isConfirmAction ? 'This will mark the request as CONFIRMED for' : 'This will mark the request as CANCELLED for'}{' '}
+                            <strong>{pendingConfirmation.studentName}</strong>
+                            {pendingConfirmation.courseName ? (
+                                <>
+                                    {' '}in <strong>{pendingConfirmation.courseName}</strong>.
+                                </>
+                            ) : (
+                                '.'
+                            )}
+                        </p>
+                        <div className="admin-confirm-actions">
+                            <button
+                                type="button"
+                                className="btn admin-action-btn admin-action-btn-ghost"
+                                onClick={closeStatusDialog}
+                                disabled={updateStatusMutation.isPending}
+                            >
+                                Keep Pending
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn admin-action-btn ${isConfirmAction ? 'admin-action-btn-emerald' : 'admin-action-btn-danger'}`}
+                                onClick={confirmStatusChange}
+                                disabled={updateStatusMutation.isPending}
+                            >
+                                {updateStatusMutation.isPending
+                                    ? 'Saving...'
+                                    : isConfirmAction
+                                        ? 'Yes, Confirm'
+                                        : 'Yes, Cancel'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
