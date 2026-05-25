@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { classes } from '../data/classes.js';
 import ClassCard from '../components/ClassCard.jsx';
+import CatalogFilters from '../components/classes/CatalogFilters.jsx';
 
 const categories = [...new Set(classes.map(c => c.category))];
 
@@ -49,53 +50,15 @@ export default function ClassesPage() {
 
             <section className="pb-5">
                 <div className="container">
-                    <div className="filter-panel mb-4">
-                        <div className="row g-3 align-items-end">
-                            <div className="col-md-5">
-                                <label className="form-label" htmlFor="instrumentFilter">
-                                    Filter by instrument type
-                                </label>
-                                <select
-                                    className="form-select"
-                                    id="instrumentFilter"
-                                    value={category}
-                                    onChange={e => setCategory(e.target.value)}
-                                >
-                                    <option value="all">All instruments</option>
-                                    {categories.map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="col-md-4">
-                                <label className="form-label" htmlFor="levelFilter">
-                                    Filter by level
-                                </label>
-                                <select
-                                    className="form-select"
-                                    id="levelFilter"
-                                    value={level}
-                                    onChange={e => setLevel(e.target.value)}
-                                >
-                                    <option value="all">All levels</option>
-                                    <option value="Beginner">Beginner</option>
-                                    <option value="Intermediate">Intermediate</option>
-                                    <option value="Advanced">Advanced</option>
-                                </select>
-                            </div>
-                            <div className="col-md-3">
-                                <label className="form-label" htmlFor="searchInput">Search</label>
-                                <input
-                                    className="form-control"
-                                    id="searchInput"
-                                    type="search"
-                                    placeholder="Search classes"
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    <CatalogFilters
+                        categories={categories}
+                        category={category}
+                        level={level}
+                        search={search}
+                        onCategoryChange={setCategory}
+                        onLevelChange={setLevel}
+                        onSearchChange={setSearch}
+                    />
 
                     <div className="row g-4">
                         {filtered.map(c => (

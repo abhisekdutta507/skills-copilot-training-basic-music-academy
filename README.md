@@ -54,8 +54,8 @@ The starter includes sample programs for:
 
 ## Suggested Refactor Directions
 
-- [x] Convert the project to React, Vue, or another framework
-- [ ] Split rendering into reusable UI modules
+- [ ] Convert the project to Next framework
+- [x] Split rendering into reusable UI modules
 - [ ] Replace seeded data with an API
 - [ ] Add authentication and admin workflows
 - [ ] Connect forms to a real backend and database

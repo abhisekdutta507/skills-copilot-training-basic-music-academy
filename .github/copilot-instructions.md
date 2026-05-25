@@ -69,6 +69,7 @@ Seeded programs: Contemporary Guitar, Piano Essentials, Violin Performance Lab, 
 ## Coding Conventions
 
 - Use React function components and hooks; keep page-level state in page components and shared persistence logic in hooks.
+- Apply appropriate software design patterns as a mandatory coding rule for new and refactored code (for example, composition, separation of concerns, and reusable module patterns where suitable).
 - Keep seeded catalog data in `src/data/classes.js` and avoid mutating the exported `classes` array in-place.
 - Keep currency formatting centralized in `src/utils/format.js`; do not inline `Intl.NumberFormat` elsewhere.
 - Keep class search/filter behavior case-insensitive across `name`, `category`, `blurb`, and `instructor`.
@@ -102,6 +103,7 @@ Seeded programs: Contemporary Guitar, Piano Essentials, Violin Performance Lab, 
 ## What Copilot Should Always Do
 
 - Keep fees in **INR**; format using the existing `formatPrice()` utility.
+- Treat design-pattern usage as mandatory: choose clear, maintainable patterns that fit the feature instead of ad-hoc logic.
 - When adding new class data, follow the exact domain-model shape above.
 - When generating filters or search logic, keep them case-insensitive and operating on the same fields (`name`, `category`, `blurb`, `instructor`).
 - For app features, prefer React route pages in `src/pages/` and wire routes in `src/App.jsx`.
